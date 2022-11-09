@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BatchRename", "BatchRename\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contract", "Contract\Contract.csproj", "{217BA24D-85DC-4DB7-93CF-FA3D4E6BA071}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveAllSpaceRule", "RemoveAllSpaceRule\RemoveAllSpaceRule.csproj", "{3063FA79-92C2-4563-AE4D-69C607DEE7E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoveAllSpaceRule", "RemoveAllSpaceRule\RemoveAllSpaceRule.csproj", "{3063FA79-92C2-4563-AE4D-69C607DEE7E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllLowerCaseRule", "AllLowerCaseRule\AllLowerCaseRule.csproj", "{31BF7C6D-2363-4C36-8C79-019BFD1D5BC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{3063FA79-92C2-4563-AE4D-69C607DEE7E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3063FA79-92C2-4563-AE4D-69C607DEE7E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3063FA79-92C2-4563-AE4D-69C607DEE7E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31BF7C6D-2363-4C36-8C79-019BFD1D5BC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31BF7C6D-2363-4C36-8C79-019BFD1D5BC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31BF7C6D-2363-4C36-8C79-019BFD1D5BC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31BF7C6D-2363-4C36-8C79-019BFD1D5BC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,19 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RemoveAllSpaceRule
+namespace AllLowerCaseRule
 {
-    public class RemoveAllSpaceRuleParser : IRenameRuleParser
+    public class AllLowerCaseRuleParser : IRenameRuleParser
     {
-        public string Name => "RemoveAllSpace";
+        public string Name => "AllLowerCase";
 
-        public string Title => "Remove space";
+        public string Title => "All lower case";
 
         public bool IsPlugAndPlay => true;
 
         public IRenameRule Parse(string line)
         {
-            IRenameRule rule = new RemoveAllSpaceRule();
+            IRenameRule rule = new AllLowerCaseRule();
 
             return rule;
         }

@@ -1,21 +1,16 @@
 ﻿using Contract;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Forms;
+using System.Linq;
+using System.Diagnostics;
 
 namespace BatchRename
 {
@@ -51,7 +46,7 @@ namespace BatchRename
             {
                 var rule = item.Value;
 
-                var button = new Button()
+                var button = new System.Windows.Controls.Button()
                 {
                     Margin = new Thickness(0, 0, 5, 0),
                     Padding = new Thickness(5, 3, 5, 3),
@@ -161,7 +156,7 @@ namespace BatchRename
 
         private void btnAddRunRule_Click(object sender, RoutedEventArgs e)
         {
-            string selectedTagName = (string)((Button)sender).Tag;
+            string selectedTagName = (string)((System.Windows.Controls.Button)sender).Tag;
 
             IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(selectedTagName);
 
@@ -203,7 +198,7 @@ namespace BatchRename
 
         private void btnRemoveRunRuleItself_Click(object sender, RoutedEventArgs e)
         {
-            var btnRemove = sender as Button;
+            var btnRemove = sender as System.Windows.Controls.Button;
             if(int.TryParse(btnRemove!.Tag.ToString(), out int tag))
             {
                 _runRules.RemoveAt(tag);
@@ -253,22 +248,60 @@ namespace BatchRename
 
         private void btnAddFilesInDirectory_Click(object sender, RoutedEventArgs e)
         {
+            var folderBrowserDialog = new FolderBrowserDialog();
 
+            if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string directory = folderBrowserDialog.SelectedPath;
+
+                var files = Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories);
+
+                foreach (var file in files)
+                {
+                    if (!IsAdded(file, (int)FileType.File))
+                    {
+                        _files.Add(new File()
+                        {
+                            Name = Path.GetFileName(file),
+                            NewName = ImposeRule(Path.GetFileName(file)),
+                            Path = file
+                        });
+                    }
+                }
+            }
         }
-
         private void btnRemoveFile_Click(object sender, RoutedEventArgs e)
         {
-
+            if (lvFiles.SelectedIndex != -1)
+            {
+                _files.RemoveAt(lvFiles.SelectedIndex);
+            }
         }
 
         private void btnClearFiles_Click(object sender, RoutedEventArgs e)
         {
-
+            _files.Clear();
         }
 
-        private void lvFiles_Drop(object sender, DragEventArgs e)
+        private void lvFiles_Drop(object sender, System.Windows.DragEventArgs e)
         {
+            if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
 
+                foreach (var file in files)
+                {
+                    if (!IsAdded(file, (int)FileType.File))
+                    {
+                        _files.Add(new File()
+                        {
+                            Name = Path.GetFileName(file),
+                            NewName = ImposeRule(Path.GetFileName(file)),
+                            Path = file
+                        });
+                    }
+                }
+            }
         }
         #endregion
 
@@ -288,7 +321,7 @@ namespace BatchRename
 
         }
 
-        private void lvFolders_Drop(object sender, DragEventArgs e)
+        private void lvFolders_Drop(object sender, System.Windows.DragEventArgs e)
         {
 
         }

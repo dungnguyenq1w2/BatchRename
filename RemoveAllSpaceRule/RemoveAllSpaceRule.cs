@@ -1,5 +1,5 @@
 using Contract;
-using System;
+using System.IO;
 
 namespace RemoveAllSpaceRule
 {
@@ -7,7 +7,7 @@ namespace RemoveAllSpaceRule
     {
         public string Rename(string original)
         {
-            return original.Replace(" ", "");
+            return Path.GetFileNameWithoutExtension(original).Trim() + Path.GetExtension(original).Trim();
         }
     }
 }
