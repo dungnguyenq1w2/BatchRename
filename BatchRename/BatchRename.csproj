@@ -5,6 +5,37 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\delete.png" />
+    <None Remove="Images\edit.ico" />
+    <None Remove="Images\exit.png" />
+    <None Remove="Images\file.png" />
+    <None Remove="Images\folder.png" />
+    <None Remove="Images\minus.png" />
+    <None Remove="Images\open.png" />
+    <None Remove="Images\play.png" />
+    <None Remove="Images\plus.png" />
+    <None Remove="Images\save.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Contract\Contract.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\delete.png" />
+    <Resource Include="Images\edit.ico" />
+    <Resource Include="Images\exit.png" />
+    <Resource Include="Images\file.png" />
+    <Resource Include="Images\folder.png" />
+    <Resource Include="Images\minus.png" />
+    <Resource Include="Images\open.png" />
+    <Resource Include="Images\play.png" />
+    <Resource Include="Images\plus.png" />
+    <Resource Include="Images\save.png" />
+  </ItemGroup>
 
 </Project>
