@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Forms;
 using System.Linq;
 using System.Diagnostics;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace BatchRename
 {
@@ -95,7 +96,198 @@ namespace BatchRename
         #region start batch
         private void btnStartBatch_Click(object sender, RoutedEventArgs e)
         {
+            int type = tcTargets.SelectedIndex;
 
+            MessageBoxResult msg = System.Windows.MessageBox.Show(
+                "Are you sure you want to make the renaming?",
+                "Start renaming",
+                MessageBoxButton.YesNo
+            );
+
+            if (msg == MessageBoxResult.Yes)
+            {
+                if (type == (int)FileType.File)
+                {
+                    Dictionary<string, int> duplications = new Dictionary<string, int>();
+
+                    foreach (var file in _files)
+                    {
+                        string newIdealName = Path.Combine(Path.GetDirectoryName(file.Path)!, file.NewName);
+
+                        try
+                        {
+                            System.IO.File.Move(
+                                file.Path,
+                                newIdealName
+                            );
+                        }
+                        catch (Exception)
+                        {
+                            if (duplications.ContainsKey(newIdealName))
+                            {
+                                duplications[newIdealName]++;
+                            }
+                            else
+                            {
+                                duplications[newIdealName] = 1;
+                            }
+
+                            string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(file.NewName)} ({duplications[newIdealName]}){Path.GetExtension(file.NewName)}";
+
+                            System.IO.File.Move(
+                                file.Path,
+                                Path.Combine(Path.GetDirectoryName(file.Path)!, newLessCollisionName)
+                            );
+                        }
+                    }
+
+                    _files.Clear();
+
+                    if (Title != "Batch rename")
+                    {
+                        //SaveProjectHandler();
+                    }
+                }
+                else
+                {
+                    Dictionary<string, int> duplications = new Dictionary<string, int>();
+
+                    foreach (var folder in _folders)
+                    {
+                        string newIdealName = Path.Combine(Path.GetDirectoryName(folder.Path)!, folder.NewName);
+
+                        try
+                        {
+                            Directory.Move(folder.Path, newIdealName);
+                        }
+                        catch (Exception)
+                        {
+                            if (duplications.ContainsKey(newIdealName))
+                            {
+                                duplications[newIdealName]++;
+                            }
+                            else
+                            {
+                                duplications[newIdealName] = 1;
+                            }
+
+                            string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(folder.NewName)} ({duplications[newIdealName]})";
+
+                            Directory.Move(
+                                folder.Path,
+                                Path.Combine(Path.GetDirectoryName(folder.Path)!, newLessCollisionName)
+                            );
+                        }
+                    }
+
+                    _folders.Clear();
+                    if (Title != "Batch rename")
+                    {
+                        //SaveProjectHandler();
+                    }
+                }
+            }
+        }
+
+        private void btnStartBatchCopy_Click(object sender, RoutedEventArgs e)
+        {
+            int type = tcTargets.SelectedIndex;
+            MessageBoxResult msg = System.Windows.MessageBox.Show(
+                "Are you sure you want to make the renaming?",
+                "Start renaming",
+                MessageBoxButton.YesNo
+            );
+
+            if (msg == MessageBoxResult.Yes)
+            {
+                FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+
+                if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string directory = folderBrowserDialog.SelectedPath;
+
+                    if (type == (int)FileType.File)
+                    {
+                        Dictionary<string, int> duplications = new Dictionary<string, int>();
+
+                        foreach (var file in _files)
+                        {
+                            string newIdealName = Path.Combine(directory, file.NewName);
+
+                            try
+                            {
+                                System.IO.File.Move(
+                                    file.Path,
+                                    newIdealName
+                                );
+                            }
+                            catch (Exception)
+                            {
+                                if (duplications.ContainsKey(newIdealName))
+                                {
+                                    duplications[newIdealName]++;
+                                }
+                                else
+                                {
+                                    duplications[newIdealName] = 1;
+                                }
+
+                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(file.NewName)} ({duplications[newIdealName]}){Path.GetExtension(file.NewName)}";
+
+                                System.IO.File.Move(
+                                    file.Path,
+                                    Path.Combine(directory, newLessCollisionName)
+                                );
+                            }
+                        }
+
+                        _files.Clear();
+
+                        if (Title != "Batch rename")
+                        {
+                            SaveProjectHandler();
+                        }
+                    }
+                    else
+                    {
+                        Dictionary<string, int> duplications = new Dictionary<string, int>();
+
+                        foreach (var folder in _folders)
+                        {
+                            string newIdealName = Path.Combine(directory, folder.NewName);
+
+                            try
+                            {
+                                Directory.Move(folder.Path, newIdealName);
+                            }
+                            catch (Exception)
+                            {
+                                if (duplications.ContainsKey(newIdealName))
+                                {
+                                    duplications[newIdealName]++;
+                                }
+                                else
+                                {
+                                    duplications[newIdealName] = 1;
+                                }
+
+                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(folder.NewName)} ({duplications[newIdealName]})";
+
+                                Directory.Move(
+                                    folder.Path,
+                                    Path.Combine(directory, newLessCollisionName)
+                                );
+                            }
+                        }
+
+                        _folders.Clear();
+                        if (Title != "Batch rename")
+                        {
+                            SaveProjectHandler();
+                        }
+                    }
+                }
+            }
         }
         #endregion
 
@@ -211,6 +403,7 @@ namespace BatchRename
         #endregion
 
         #region file handler
+        #region file helper
         private bool IsAdded(string path, int type)
         {
             BindingList<File> browser;
@@ -224,6 +417,59 @@ namespace BatchRename
             }
             return false;
         }
+        private string CreateWriterFromRunRules()
+        {
+            string writer = "Rules\n";
+
+            for (int i = 0; i < _runRules.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(_runRules[i].Command))
+                {
+                    writer += _runRules[i].Command + "\n";
+                }
+            }
+
+            return writer;
+        }
+
+        private string CreateWriterFromTargets(int type)
+        {
+            BindingList<File> targets;
+            string writer = "";
+
+            if (type == (int)FileType.File)
+            {
+                writer = "Files\n";
+                targets = _files;
+            }
+            else
+            {
+                writer = "Folders\n";
+                targets = _folders;
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(targets[i].Path))
+                {
+                    writer += targets[i].Path + "\n";
+                }
+            }
+
+            return writer;
+        }
+
+        private void SaveProjectFile(string projectName)
+        {
+            string writer = "";
+
+            writer += CreateWriterFromRunRules();
+            writer += CreateWriterFromTargets((int)FileType.File);
+            writer += CreateWriterFromTargets((int)FileType.Folder);
+
+            System.IO.File.WriteAllText(projectName, writer);
+        }
+        #endregion
         private void btnAddFiles_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog();
@@ -306,9 +552,33 @@ namespace BatchRename
         #endregion
 
         #region folder handler
+        #region folder helper
+        private void SaveProjectHandler()
+        {
+            string projectName = Title.Split(new string[] { "Batch rename - " }, StringSplitOptions.None)[1];
+
+            SaveProjectFile(projectName);
+        }
+
+        #endregion
         private void btnAddFolders_Click(object sender, RoutedEventArgs e)
         {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
 
+            if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string directory = folderBrowserDialog.SelectedPath;
+
+                if (!IsAdded(directory, (int)FileType.Folder))
+                {
+                    _folders.Add(new File()
+                    {
+                        Name = Path.GetFileName(directory),
+                        NewName = ImposeRule(Path.GetFileName(directory)),
+                        Path = directory
+                    });
+                }
+            }
         }
 
         private void btnRemoveFolder_Click(object sender, RoutedEventArgs e)

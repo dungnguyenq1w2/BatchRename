@@ -58,6 +58,24 @@
                             Width="15" />
                     </StackPanel>
                 </Button>
+
+                <Button
+                    BorderBrush="Gray"
+                    BorderThickness="0.5"
+                    Background="Gainsboro"
+                    Margin="10,0,0,0"
+                    Padding="10,5,10,5"
+                    Click="btnStartBatchCopy_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,15,0">
+                            <Bold >Batch and copy</Bold>
+                        </TextBlock>
+                        <Image
+                            Source="Images/play.png"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Width="15" />
+                    </StackPanel>
+                </Button>
             </ToolBar>
         </ToolBarTray>
         <Grid>
