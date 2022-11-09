@@ -5,8 +5,287 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BatchRename"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+       Title="Batch rename" Height="450" Width="800"
+        WindowStartupLocation="CenterScreen"
+        Loaded="winMain_Loaded">
+    <DockPanel>
+        <ToolBarTray DockPanel.Dock="Top">
+            <ToolBar>
+                <Menu Background="Transparent">
+                    <MenuItem Header="Project">
+                        <MenuItem Header="Open..." Click="btnOpenProject_Click">
+                            <MenuItem.Icon>
+                                <Image
+                                    Source="Images/open.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                     Width="15" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Save" Click="btnSaveProject_Click">
+                            <MenuItem.Icon>
+                                <Image
+                                    Source="Images/save.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Width="15"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Save as..." Click="btnSaveAsProject_Click" />
+                        <MenuItem Header="Close" Click="btnCloseProject_Click">
+                            <MenuItem.Icon>
+                                <Image
+                                    Source="Images/exit.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Width="15" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="Exit" Click="btnExit_Click" />
+                    </MenuItem>
+                </Menu>
+                <Button
+                    BorderBrush="Gray"
+                    BorderThickness="0.5"
+                    Background="Gainsboro"
+                    Margin="10,0,0,0"
+                    Padding="10,5,10,5"
+                    Click="btnStartBatch_Click">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0,0,15,0">
+                            <Bold >Start batch</Bold>
+                        </TextBlock>
+                        <Image
+                            Source="Images/play.png"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Width="15" />
+                    </StackPanel>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="3*" />
+            </Grid.ColumnDefinitions>
 
-    </Grid>
+            <DockPanel Grid.Column="0">
+                <StackPanel DockPanel.Dock="Top">
+                    <ToolBarTray>
+                        <ToolBar>
+                            <TextBlock Padding="2" VerticalAlignment="Center">Preset:</TextBlock>
+                            <Button
+                                Click="btnOpenPreset_Click"
+                                Padding="3,0,3,0">
+                                <Image
+                                    Source="Images/open.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Width="13" />
+                            </Button>
+                            <Button
+                                Click="btnSavePreset_Click"
+                                Padding="5,0,5,0">
+                                <Image
+                                    Source="Images/save.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Width="13" />
+                            </Button>
+                            <Border
+                                Margin="5,0,0,0"
+                                BorderThickness="1"
+                                BorderBrush="LightGray">
+                                <Label x:Name="lblPresetName" Content="" Width="150" />
+                            </Border>
+                        </ToolBar>
+                    </ToolBarTray>
+                    <ToolBarTray >
+                        <ToolBar>
+                            <TextBlock Padding="2" VerticalAlignment="Center">Rule:</TextBlock>
+                            <Button
+                                Click="btnRemoveRunRule_Click"
+                                Padding="3,0,3,0">
+                                <Image
+                                    Source="Images/minus.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Width="13" />
+                            </Button>
+                            <Button
+                                Click="btnClearRunRule_Click"
+                                Padding="5,0,5,0">
+                                <Image
+                                    Source="Images/delete.png"
+                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                    Width="13" />
+                            </Button>
+                        </ToolBar>
+                    </ToolBarTray>
+                    <WrapPanel x:Name="wpRuleChooser" />
+                </StackPanel>
+                <ListView x:Name="lvRunRules">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="DarkGray" BorderThickness="1" Background="WhiteSmoke">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Margin="5" Text="{Binding Title}"/>
+                                    <Button
+                                        Margin="5"
+                                        Background="Transparent"
+                                        Foreground="Blue"
+                                        BorderBrush="Transparent"
+                                        Tag="{Binding Index}"
+                                        Click="btnEditRunRule_Click"
+                                        Grid.Column="1">
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsPlugAndPlay}" Value="True">
+                                                        <Setter Property="Visibility" Value="Hidden" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <Button.Content>
+                                            <Underline>Edit</Underline>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button
+                                        Margin="5"
+                                        Background="Transparent"
+                                        Foreground="Red"
+                                        BorderBrush="Transparent"
+                                        Tag="{Binding Index}"
+                                        Click="btnRemoveRunRuleItself_Click"
+                                        Grid.Column="2">
+                                        <Button.Content>
+                                            <Underline>Remove</Underline>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </DockPanel>
+            <TabControl x:Name="tcTargets" Grid.Column="1">
+                <TabItem Header="Rename Files">
+                    <DockPanel>
+                        <ToolBarTray DockPanel.Dock="Top">
+                            <ToolBar>
+                                <Menu Background="Transparent">
+                                    <MenuItem Header="Add">
+                                        <MenuItem.Icon>
+                                            <Image
+                                                Source="Images/plus.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
+                                        </MenuItem.Icon>
+                                        <MenuItem Header="Files..." Click="btnAddFiles_Click">
+                                            <MenuItem.Icon>
+                                                <Image
+                                                    Source="Images/file.png"
+                                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                                    Width="15"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="Directories..." Click="btnAddFilesInDirectory_Click">
+                                            <MenuItem.Icon>
+                                                <Image
+                                                    Source="Images/folder.png"
+                                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                                    Width="15"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </MenuItem>
+                                    <MenuItem Header="Remove" Click="btnRemoveFile_Click">
+                                        <MenuItem.Icon>
+                                            <Image
+                                                Source="Images/minus.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Clear" Click="btnClearFiles_Click">
+                                        <MenuItem.Icon>
+                                            <Image
+                                                Source="Images/delete.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                            </ToolBar>
+                        </ToolBarTray>
+                        <ListView x:Name="lvFiles" Drop="lvFiles_Drop" AllowDrop="True">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" Width="150" DisplayMemberBinding="{Binding Name}" />
+                                    <GridViewColumn Header="New name" Width="150" DisplayMemberBinding="{Binding NewName}" />
+                                    <GridViewColumn Header="Path" Width="200" DisplayMemberBinding="{Binding Path}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </TabItem>
+                <TabItem Header="Rename Folders">
+                    <DockPanel>
+                        <ToolBarTray DockPanel.Dock="Top">
+                            <ToolBar>
+                                <Menu Background="Transparent">
+                                    <MenuItem Header="Add">
+                                        <MenuItem.Icon>
+                                            <Image
+                                                Source="Images/plus.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
+                                        </MenuItem.Icon>
+                                        <MenuItem Header="Folders..." Click="btnAddFolders_Click">
+                                            <MenuItem.Icon>
+                                                <Image
+                                                    Source="Images/folder.png"
+                                                    RenderOptions.BitmapScalingMode="HighQuality"
+                                                    Width="15" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </MenuItem>
+                                    <MenuItem Header="Remove" Click="btnRemoveFolder_Click">
+                                        <MenuItem.Icon>
+                                            <Image
+                                                Source="Images/minus.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                    <MenuItem Header="Clear" Click="btnClearFolders_Click">
+                                        <MenuItem.Icon>
+                                            <Image
+                                                Source="Images/delete.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
+                                </Menu>
+                            </ToolBar>
+                        </ToolBarTray>
+                        <ListView x:Name="lvFolders" Drop="lvFolders_Drop" AllowDrop="True">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" Width="150" DisplayMemberBinding="{Binding Name}" />
+                                    <GridViewColumn Header="New name" Width="150" DisplayMemberBinding="{Binding NewName}" />
+                                    <GridViewColumn Header="Path" Width="200" DisplayMemberBinding="{Binding Path}" />
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
 </Window>
