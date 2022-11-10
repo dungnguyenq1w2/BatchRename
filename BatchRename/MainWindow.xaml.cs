@@ -208,35 +208,66 @@ namespace BatchRename
 
                     if (type == (int)FileType.File)
                     {
-                        Dictionary<string, int> duplications = new Dictionary<string, int>();
-
+                        Dictionary<string, int> duplicationsCopyfile = new Dictionary<string, int>();
+                        
                         foreach (var file in _files)
                         {
+                            string newPath = Path.Combine(directory, file.Name);
+
+                            try
+                            {
+                                System.IO.File.Copy(
+                                    file.Path,
+                                    newPath
+                                );
+                            }
+                            catch (Exception)
+                            {
+                                if (duplicationsCopyfile.ContainsKey(newPath))
+                                {
+                                    duplicationsCopyfile[newPath]++;
+                                }
+                                else
+                                {
+                                    duplicationsCopyfile[newPath] = 1;
+                                }
+
+                                string copyNameWithDuplicate = $"{Path.GetFileNameWithoutExtension(file.Name)} ({duplicationsCopyfile[newPath]}) {Path.GetExtension(file.Name)}";
+
+                                newPath = Path.Combine(directory, copyNameWithDuplicate);
+                                
+                                System.IO.File.Copy(
+                                    file.Path,
+                                    newPath
+                                );
+                            }
+
                             string newIdealName = Path.Combine(directory, file.NewName);
+                            Dictionary<string, int> duplicationsNewFileName = new Dictionary<string, int>();
 
                             try
                             {
                                 System.IO.File.Move(
-                                    file.Path,
+                                    newPath,
                                     newIdealName
                                 );
                             }
                             catch (Exception)
                             {
-                                if (duplications.ContainsKey(newIdealName))
+                                if (duplicationsNewFileName.ContainsKey(newIdealName))
                                 {
-                                    duplications[newIdealName]++;
+                                    duplicationsNewFileName[newIdealName]++;
                                 }
                                 else
                                 {
-                                    duplications[newIdealName] = 1;
+                                    duplicationsNewFileName[newIdealName] = 1;
                                 }
 
-                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(file.NewName)} ({duplications[newIdealName]}){Path.GetExtension(file.NewName)}";
+                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(file.NewName)} ({duplicationsNewFileName[newIdealName]}){Path.GetExtension(file.NewName)}";
 
                                 System.IO.File.Move(
-                                    file.Path,
-                                    Path.Combine(directory, newLessCollisionName)
+                                    newPath,
+                                    Path.Combine(Path.GetDirectoryName(newPath)!, newLessCollisionName)
                                 );
                             }
                         }
@@ -254,10 +285,21 @@ namespace BatchRename
 
                         foreach (var folder in _folders)
                         {
-                            string newIdealName = Path.Combine(directory, folder.NewName);
+                            string newPath = Path.Combine(directory, folder.Name);
 
                             try
                             {
+                                Directory.CreateDirectory(newPath);
+                            }
+                            catch (Exception)
+                            {
+                                //duplcation folder
+                            }
+
+                            string newIdealName = Path.Combine(directory, folder.NewName);
+
+                            try
+                            {                                
                                 Directory.Move(folder.Path, newIdealName);
                             }
                             catch (Exception)
