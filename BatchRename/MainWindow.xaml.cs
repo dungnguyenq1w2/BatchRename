@@ -189,6 +189,28 @@ namespace BatchRename
             }
         }
 
+        private void MoveAllFilesToCopyFolder(string srcPath, string desPath)
+        {
+            if(Directory.Exists(srcPath) && Directory.Exists(desPath))
+            {
+                foreach (string dirPath in Directory.GetDirectories(srcPath, "*", SearchOption.AllDirectories))
+                {
+                    Directory.CreateDirectory(dirPath.Replace(srcPath, desPath));
+                }
+
+                foreach (string filePath in Directory.GetFiles(srcPath, "*.*", SearchOption.AllDirectories))
+                {
+                    System.IO.File.Copy(filePath, filePath.Replace(srcPath, desPath), true);
+                }
+            }
+        }
+
+        private bool IsEmptyFolder(string folderPath)
+        {
+            bool result = !Directory.EnumerateFileSystemEntries(folderPath).Any();
+            return result;
+        }
+
         private void btnStartBatchCopy_Click(object sender, RoutedEventArgs e)
         {
             int type = tcTargets.SelectedIndex;
@@ -205,38 +227,73 @@ namespace BatchRename
                 if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string directory = folderBrowserDialog.SelectedPath;
-
+                    if (!IsEmptyFolder(directory))
+                    {
+                        MessageBox.Show("Destination must be an empty folder");
+                        return;
+                    }
                     if (type == (int)FileType.File)
                     {
-                        Dictionary<string, int> duplications = new Dictionary<string, int>();
-
+                        Dictionary<string, int> duplicationsCopyfile = new Dictionary<string, int>();
+                        
                         foreach (var file in _files)
                         {
+                            string newPath = Path.Combine(directory, file.Name);
+
+                            if (!System.IO.File.Exists(newPath))
+                            {
+                                System.IO.File.Copy(
+                                    file.Path,
+                                    newPath
+                                );
+                            }
+                            else
+                            {
+                                if (duplicationsCopyfile.ContainsKey(newPath))
+                                {
+                                    duplicationsCopyfile[newPath]++;
+                                }
+                                else
+                                {
+                                    duplicationsCopyfile[newPath] = 1;
+                                }
+
+                                string copyNameWithDuplicate = $"{Path.GetFileNameWithoutExtension(file.Name)} ({duplicationsCopyfile[newPath]}) {Path.GetExtension(file.Name)}";
+
+                                newPath = Path.Combine(directory, copyNameWithDuplicate);
+
+                                System.IO.File.Copy(
+                                    file.Path,
+                                    newPath
+                                );
+                            }
+
                             string newIdealName = Path.Combine(directory, file.NewName);
+                            Dictionary<string, int> duplicationsNewFileName = new Dictionary<string, int>();
 
                             try
                             {
                                 System.IO.File.Move(
-                                    file.Path,
+                                    newPath,
                                     newIdealName
                                 );
                             }
                             catch (Exception)
                             {
-                                if (duplications.ContainsKey(newIdealName))
+                                if (duplicationsNewFileName.ContainsKey(newIdealName))
                                 {
-                                    duplications[newIdealName]++;
+                                    duplicationsNewFileName[newIdealName]++;
                                 }
                                 else
                                 {
-                                    duplications[newIdealName] = 1;
+                                    duplicationsNewFileName[newIdealName] = 1;
                                 }
 
-                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(file.NewName)} ({duplications[newIdealName]}){Path.GetExtension(file.NewName)}";
+                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(file.NewName)} ({duplicationsNewFileName[newIdealName]}){Path.GetExtension(file.NewName)}";
 
                                 System.IO.File.Move(
-                                    file.Path,
-                                    Path.Combine(directory, newLessCollisionName)
+                                    newPath,
+                                    Path.Combine(Path.GetDirectoryName(newPath)!, newLessCollisionName)
                                 );
                             }
                         }
@@ -250,31 +307,56 @@ namespace BatchRename
                     }
                     else
                     {
-                        Dictionary<string, int> duplications = new Dictionary<string, int>();
+                        Dictionary<string, int> duplicationsCopyFolder = new Dictionary<string, int>();
 
                         foreach (var folder in _folders)
                         {
+                            string newPath = Path.Combine(directory, folder.Name);
+
+                            if (!Directory.Exists(newPath))
+                            {
+                                Directory.CreateDirectory(newPath);
+                                MoveAllFilesToCopyFolder(folder.Path, newPath);
+                            }
+                            else
+                            {
+                                if (duplicationsCopyFolder.ContainsKey(newPath))
+                                {
+                                    duplicationsCopyFolder[newPath]++;
+                                }
+                                else
+                                {
+                                    duplicationsCopyFolder[newPath] = 1;
+                                }
+                                string copyNameWithDuplicate = $"{Path.GetFileNameWithoutExtension(folder.Name)} ({duplicationsCopyFolder[newPath]})";
+                                newPath = Path.Combine(directory, copyNameWithDuplicate);
+
+                                Directory.CreateDirectory(newPath);
+                                MoveAllFilesToCopyFolder(folder.Path, newPath);
+                            }
+
+                            Dictionary<string, int> duplicationsNewFolderName = new Dictionary<string, int>();
                             string newIdealName = Path.Combine(directory, folder.NewName);
 
                             try
                             {
-                                Directory.Move(folder.Path, newIdealName);
+                                Directory.Move(newPath, newIdealName);
                             }
                             catch (Exception)
                             {
-                                if (duplications.ContainsKey(newIdealName))
+                                if (duplicationsNewFolderName.ContainsKey(newIdealName))
                                 {
-                                    duplications[newIdealName]++;
+                                    duplicationsNewFolderName[newIdealName]++;
                                 }
                                 else
                                 {
-                                    duplications[newIdealName] = 1;
+                                    duplicationsNewFolderName[newIdealName] = 1;
                                 }
 
-                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(folder.NewName)} ({duplications[newIdealName]})";
+                                string newLessCollisionName = $"{Path.GetFileNameWithoutExtension(folder.NewName)} ({duplicationsNewFolderName[newIdealName]})";
 
                                 Directory.Move(
-                                    folder.Path,
+                                    newPath,
                                     Path.Combine(directory, newLessCollisionName)
                                 );
                             }
