@@ -376,12 +376,37 @@ namespace BatchRename
         #region preset handler
         private void btnOpenPreset_Click(object sender, RoutedEventArgs e)
         {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
 
+            if (openFileDialog.ShowDialog() == true)
+            {
+                if (ReadProjectFile(openFileDialog.FileName, true) == true)
+                {
+                    lblPresetName.Content = openFileDialog.SafeFileName;
+
+                    EvokeToUpdateNewName();
+                }
+            }
         }
 
         private void btnSavePreset_Click(object sender, RoutedEventArgs e)
         {
+            if (_runRules.Count > 0)
+            {
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+                saveFileDialog.Filter = "Preset file (*.txt)|*.txt";
 
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    string writer = CreateWriterFromRunRules();
+
+                    System.IO.File.WriteAllText(saveFileDialog.FileName, writer);
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("You have to define at least one rule");
+            }
         }
         #endregion
 
@@ -678,5 +703,81 @@ namespace BatchRename
 
         }
         #endregion
+
+        // Read project file and load its components into corresponding lists
+        private bool ReadProjectFile(string fileName, bool isOnlyPreset)
+        {
+            try
+            {
+                using (StreamReader reader = new StreamReader(fileName))
+                {
+                    if (!isOnlyPreset)
+                    {
+                        _files.Clear();
+                        _folders.Clear();
+                    }
+
+                    _runRules.Clear();
+
+                    string state = "";
+                    while (!reader.EndOfStream)
+                    {
+                        string line = reader.ReadLine();
+
+                        if (line == "Rules" || line == "Files" || line == "Folders")
+                        {
+                            state = line;
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(line))
+                            {
+                                if (state == "Rules")
+                                {
+                                    int firstSpaceIndex = line.IndexOf(" ");
+                                    string firstWord = (firstSpaceIndex > 0) ? line.Substring(0, firstSpaceIndex) : line;
+
+                                    IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(firstWord);
+                                    IRenameRule rule = parser.Parse(line);
+
+                                    _runRules.Add(new RunRule()
+                                    {
+                                        Index = _runRules.Count,
+                                        Name = firstWord,
+                                        Title = parser.Title,
+                                        IsPlugAndPlay = parser.IsPlugAndPlay,
+                                        Command = line
+                                    });
+                                }
+                                else if (state == "Files")
+                                {
+                                    _files.Add(new File()
+                                    {
+                                        Name = Path.GetFileName(line),
+                                        NewName = "",
+                                        Path = line
+                                    });
+                                }
+                                else
+                                {
+                                    _folders.Add(new File()
+                                    {
+                                        Name = Path.GetFileName(line),
+                                        NewName = "",
+                                        Path = line
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
