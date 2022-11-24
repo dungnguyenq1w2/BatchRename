@@ -22,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AllLowerCaseRule\AllLowerCaseRule.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\RemoveAllSpaceRule\RemoveAllSpaceRule.csproj" />
   </ItemGroup>
 
   <ItemGroup>
