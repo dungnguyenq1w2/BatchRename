@@ -492,7 +492,21 @@ namespace BatchRename
 
         private void btnEditRunRule_Click(object sender, RoutedEventArgs e)
         {
+            int index = int.Parse((sender as System.Windows.Controls.Button).Tag.ToString());
+            RunRule rule = _runRules[index];
 
+            if (!rule.IsPlugAndPlay)
+            {
+                var window = RenameRuleParserFactory.Instance().GetWindow(rule.Name);
+                window.Command = rule.Command;
+
+                if ((bool)window.ShowDialog())
+                {
+                    _runRules[index].Command = window.Command;
+
+                    EvokeToUpdateNewName();
+                }
+            }
         }
 
         private void btnRemoveRunRuleItself_Click(object sender, RoutedEventArgs e)
