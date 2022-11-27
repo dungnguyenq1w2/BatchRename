@@ -18,6 +18,13 @@ namespace Contract
                     @"Can't contain any of the characters: \ / : * ? "" < > |"
                 );
             }
+            else if(segment.Length > 255)
+            {
+                return new ValidationResult(
+                    false,
+                    @"Length file name max 255 characters"
+                );
+            }
             else
             {
                 return ValidationResult.ValidResult;

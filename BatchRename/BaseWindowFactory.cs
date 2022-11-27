@@ -1,17 +1,19 @@
 ﻿using Contract;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Animation;
 
 namespace BatchRename
 {
     public class BaseWindowFactory
     {
-        private static BaseWindowFactory _instance = new BaseWindowFactory();
+        private static BaseWindowFactory? _instance = null;
         private Dictionary<string, BaseWindow> _windowPrototypes;
         
         BaseWindowFactory()
@@ -21,6 +23,11 @@ namespace BatchRename
 
         public static BaseWindowFactory Instance()
         {
+            if (_instance == null)
+            {
+                _instance = new BaseWindowFactory(); ;
+            }
+
             return _instance;
         }
 
