@@ -1,7 +1,11 @@
 ﻿using Contract;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.Text;
+using System.Threading.Channels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -45,14 +49,17 @@ namespace ReplaceRule
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
-        {
+        {  
             DialogResult = false;
         }
-
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            Command = $"{ClassName} \"{txtFind.Text}\" => \"{Replace}\"";
-            DialogResult = true;
+            Debug.WriteLine(Replace);
+            if(Replace != null && txtReplace.Text.Length <= 255)
+            {
+                DialogResult = true;
+                Command = $"{ClassName} \"{txtFind.Text}\" => \"{Replace}\"";
+            }
         }
     }
 }

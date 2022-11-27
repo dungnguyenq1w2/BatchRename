@@ -41,6 +41,7 @@ namespace BatchRename
         {
             RenameRuleParserFactory.Instance().Register();
             BaseWindowFactory.Instance().Register();
+
             var items = RenameRuleParserFactory.Instance().RuleParserPrototypes;
 
             foreach (var item in items)
@@ -497,13 +498,12 @@ namespace BatchRename
 
             if (!rule.IsPlugAndPlay)
             {
-                var window = RenameRuleParserFactory.Instance().GetWindow(rule.Name);
+                var window = BaseWindowFactory.Instance().GetBaseWindow(rule.Name).CreateInstance();
                 window.Command = rule.Command;
 
-                if ((bool)window.ShowDialog())
+                if (window.ShowDialog() == true)
                 {
                     _runRules[index].Command = window.Command;
-
                     EvokeToUpdateNewName();
                 }
             }
