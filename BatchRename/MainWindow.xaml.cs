@@ -793,5 +793,10 @@ namespace BatchRename
                 return false;
             }
         }
+
+        private void lvRunRules_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

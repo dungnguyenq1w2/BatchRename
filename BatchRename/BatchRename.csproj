@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Contract\Contract.csproj" />
     <ProjectReference Include="..\RemoveAllSpaceRule\RemoveAllSpaceRule.csproj" />
     <ProjectReference Include="..\ReplaceRule\ReplaceRule.csproj" />
+    <ProjectReference Include="..\ToPascalCaseRule\ToPascalCaseRule.csproj" />
   </ItemGroup>
 
   <ItemGroup>

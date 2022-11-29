@@ -136,7 +136,7 @@
                     </ToolBarTray>
                     <WrapPanel x:Name="wpRuleChooser" />
                 </StackPanel>
-                <ListView x:Name="lvRunRules">
+                <ListView x:Name="lvRunRules" SelectionChanged="lvRunRules_SelectionChanged">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />

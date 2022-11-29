@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RemoveAllSpaceRule", "Remov
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AllLowerCaseRule", "AllLowerCaseRule\AllLowerCaseRule.csproj", "{31BF7C6D-2363-4C36-8C79-019BFD1D5BC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplaceRule", "ReplaceRule\ReplaceRule.csproj", "{D4C0C264-DE8B-4685-ADF7-CFD5DA931F7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReplaceRule", "ReplaceRule\ReplaceRule.csproj", "{D4C0C264-DE8B-4685-ADF7-CFD5DA931F7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToPascalCaseRule", "ToPascalCaseRule\ToPascalCaseRule.csproj", "{AFE695DE-56F6-4AB9-8C95-8CA13EB04A1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{D4C0C264-DE8B-4685-ADF7-CFD5DA931F7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4C0C264-DE8B-4685-ADF7-CFD5DA931F7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4C0C264-DE8B-4685-ADF7-CFD5DA931F7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFE695DE-56F6-4AB9-8C95-8CA13EB04A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFE695DE-56F6-4AB9-8C95-8CA13EB04A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFE695DE-56F6-4AB9-8C95-8CA13EB04A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFE695DE-56F6-4AB9-8C95-8CA13EB04A1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
