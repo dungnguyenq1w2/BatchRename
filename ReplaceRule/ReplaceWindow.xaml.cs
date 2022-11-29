@@ -54,7 +54,6 @@ namespace ReplaceRule
         }
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine(Replace);
             if(Replace != null && txtReplace.Text.Length <= 255)
             {
                 DialogResult = true;
