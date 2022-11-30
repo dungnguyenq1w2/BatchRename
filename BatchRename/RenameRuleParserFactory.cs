@@ -11,30 +11,24 @@ namespace BatchRename
 {
     public class RenameRuleParserFactory
     {
-        private static RenameRuleParserFactory _instance = new RenameRuleParserFactory();
+        private static RenameRuleParserFactory? _instance = null;
         private Dictionary<string, IRenameRuleParser> _ruleParserPrototypes;
-        private Dictionary<string, BaseWindow> _windowPrototypes;
         public Dictionary<string, IRenameRuleParser> RuleParserPrototypes { get => _ruleParserPrototypes; }
-        public Dictionary<string, BaseWindow> WindowPrototypes { get => WindowPrototypes; }
         RenameRuleParserFactory()
         {
             _ruleParserPrototypes = new Dictionary<string, IRenameRuleParser>();
-            _windowPrototypes = new Dictionary<string, BaseWindow>();
         }
 
         public static RenameRuleParserFactory Instance()
         {
+            if (_instance == null)
+                _instance = new RenameRuleParserFactory();
             return _instance;
         }
 
         public IRenameRuleParser GetRuleParser(string ruleParserName)
         {
             return _ruleParserPrototypes[ruleParserName];
-        }
-
-        public BaseWindow GetWindow(string windowName)
-        {
-            return _windowPrototypes[windowName];
         }
 
         public void Register()
@@ -54,11 +48,6 @@ namespace BatchRename
                         {
                             var ruleParser = Activator.CreateInstance(type) as IRenameRuleParser;
                             _ruleParserPrototypes.Add(ruleParser!.Name, ruleParser);
-                        }
-                        if (typeof(BaseWindow).IsAssignableFrom(type))
-                        {
-                            var window = Activator.CreateInstance(type) as BaseWindow;
-                            _windowPrototypes.Add(window.ClassName, window);
                         }
                     }
                 }
