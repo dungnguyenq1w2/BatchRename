@@ -81,30 +81,155 @@ namespace BatchRename
             lvFolders.ItemsSource = _folders;
         }
 
-        #region project hanler
+        #region project handler
+        private bool ReadProjectFile(string fileName, bool isOnlyPreset)
+        {
+            try
+            {
+                using (StreamReader reader = new StreamReader(fileName))
+                {
+                    if (!isOnlyPreset)
+                    {
+                        _files.Clear();
+                        _folders.Clear();
+                    }
+
+                    _runRules.Clear();
+
+                    string state = "";
+                    while (!reader.EndOfStream)
+                    {
+                        string line = reader.ReadLine();
+
+                        if (line == "Rules" || line == "Files" || line == "Folders")
+                        {
+                            state = line;
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(line))
+                            {
+                                if (state == "Rules")
+                                {
+                                    int firstSpaceIndex = line.IndexOf(" ");
+                                    string firstWord = (firstSpaceIndex > 0) ? line.Substring(0, firstSpaceIndex) : line;
+
+                                    IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(firstWord);
+                                    IRenameRule rule = parser.Parse(line);
+
+                                    _runRules.Add(new RunRule()
+                                    {
+                                        Index = _runRules.Count,
+                                        Name = firstWord,
+                                        Title = parser.Title,
+                                        IsPlugAndPlay = parser.IsPlugAndPlay,
+                                        Command = line
+                                    });
+                                }
+                                else if (state == "Files")
+                                {
+                                    _files.Add(new File()
+                                    {
+                                        Name = Path.GetFileName(line),
+                                        NewName = "",
+                                        Path = line
+                                    });
+                                }
+                                else
+                                {
+                                    _folders.Add(new File()
+                                    {
+                                        Name = Path.GetFileName(line),
+                                        NewName = "",
+                                        Path = line
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private void SaveProjectFile(string projectName)
+        {
+            string writer = "";
+
+            writer += CreateWriterFromRunRules();
+            writer += CreateWriterFromTargets((int)FileType.File);
+            writer += CreateWriterFromTargets((int)FileType.Folder);
+
+            System.IO.File.WriteAllText(projectName, writer);
+        }
+
+        private void SaveProjectHandler()
+        {
+            string projectName = Title.Split(new string[] { "Batch rename - " }, StringSplitOptions.None)[1];
+
+            SaveProjectFile(projectName);
+        }
+
+        private void SaveAsProjectHandler()
+        {
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            saveFileDialog.Filter = "Project file (*.prj)|*.prj";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string projectName = saveFileDialog.FileName;
+
+                SaveProjectFile(projectName);
+
+                Title = $"Batch rename - {projectName}";
+            }
+        }
+
         private void btnOpenProject_Click(object sender, RoutedEventArgs e)
         {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
 
+            if (openFileDialog.ShowDialog() == true)
+            {
+                if (ReadProjectFile(openFileDialog.FileName, false) == true)
+                {
+                    Title = $"Batch rename - {openFileDialog.FileName}";
+
+                    EvokeToUpdateNewName();
+                }
+            }
         }
 
         private void btnSaveProject_Click(object sender, RoutedEventArgs e)
         {
-
+            if (Title == "Batch rename")
+                SaveAsProjectHandler();
+            else
+                SaveProjectHandler();
         }
 
         private void btnSaveAsProject_Click(object sender, RoutedEventArgs e)
         {
-
+            SaveAsProjectHandler();
         }
 
         private void btnCloseProject_Click(object sender, RoutedEventArgs e)
         {
-
+            _runRules.Clear();
+            _files.Clear();
+            _folders.Clear();
+            lblPresetName.Content = "";
+            Title = "Batch rename";
         }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
-
+            Close();
         }
         #endregion
 
@@ -160,7 +285,7 @@ namespace BatchRename
 
                     if (Title != "Batch rename")
                     {
-                        //SaveProjectHandler();
+                        SaveProjectHandler();
                     }
                 }
                 else
@@ -198,7 +323,7 @@ namespace BatchRename
                     _folders.Clear();
                     if (Title != "Batch rename")
                     {
-                        //SaveProjectHandler();
+                        SaveProjectHandler();
                     }
                 }
             }
@@ -615,16 +740,6 @@ namespace BatchRename
             return writer;
         }
 
-        private void SaveProjectFile(string projectName)
-        {
-            string writer = "";
-
-            writer += CreateWriterFromRunRules();
-            writer += CreateWriterFromTargets((int)FileType.File);
-            writer += CreateWriterFromTargets((int)FileType.Folder);
-
-            System.IO.File.WriteAllText(projectName, writer);
-        }
         #endregion
         private void btnAddFiles_Click(object sender, RoutedEventArgs e)
         {
@@ -709,12 +824,6 @@ namespace BatchRename
 
         #region folder handler
         #region folder helper
-        private void SaveProjectHandler()
-        {
-            string projectName = Title.Split(new string[] { "Batch rename - " }, StringSplitOptions.None)[1];
-
-            SaveProjectFile(projectName);
-        }
 
         #endregion
         private void btnAddFolders_Click(object sender, RoutedEventArgs e)
@@ -753,82 +862,7 @@ namespace BatchRename
         }
         #endregion
 
-        // Read project file and load its components into corresponding lists
-        private bool ReadProjectFile(string fileName, bool isOnlyPreset)
-        {
-            try
-            {
-                using (StreamReader reader = new StreamReader(fileName))
-                {
-                    if (!isOnlyPreset)
-                    {
-                        _files.Clear();
-                        _folders.Clear();
-                    }
-
-                    _runRules.Clear();
-
-                    string state = "";
-                    while (!reader.EndOfStream)
-                    {
-                        string line = reader.ReadLine();
-
-                        if (line == "Rules" || line == "Files" || line == "Folders")
-                        {
-                            state = line;
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(line))
-                            {
-                                if (state == "Rules")
-                                {
-                                    int firstSpaceIndex = line.IndexOf(" ");
-                                    string firstWord = (firstSpaceIndex > 0) ? line.Substring(0, firstSpaceIndex) : line;
-
-                                    IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(firstWord);
-                                    IRenameRule rule = parser.Parse(line);
-
-                                    _runRules.Add(new RunRule()
-                                    {
-                                        Index = _runRules.Count,
-                                        Name = firstWord,
-                                        Title = parser.Title,
-                                        IsPlugAndPlay = parser.IsPlugAndPlay,
-                                        Command = line
-                                    });
-                                }
-                                else if (state == "Files")
-                                {
-                                    _files.Add(new File()
-                                    {
-                                        Name = Path.GetFileName(line),
-                                        NewName = "",
-                                        Path = line
-                                    });
-                                }
-                                else
-                                {
-                                    _folders.Add(new File()
-                                    {
-                                        Name = Path.GetFileName(line),
-                                        NewName = "",
-                                        Path = line
-                                    });
-                                }
-                            }
-                        }
-                    }
-
-                    return true;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
+        
         private void lvRunRules_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
