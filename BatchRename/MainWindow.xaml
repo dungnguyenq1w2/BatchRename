@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="Batch rename" Height="450" Width="800"
         WindowStartupLocation="CenterScreen"
-        Loaded="winMain_Loaded">
+        Loaded="winMain_Loaded"
+        Closing="Window_Closing">
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
