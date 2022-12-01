@@ -22,7 +22,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AddPrefixRule\AddPrefixRule.csproj" />
+    <ProjectReference Include="..\AllLowerCaseRule\AllLowerCaseRule.csproj" />
+    <ProjectReference Include="..\ChangeExtensionRule\ChangeExtensionRule.csproj" />
     <ProjectReference Include="..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\RemoveAllSpaceRule\RemoveAllSpaceRule.csproj" />
+    <ProjectReference Include="..\ReplaceRule\ReplaceRule.csproj" />
+    <ProjectReference Include="..\ToPascalCaseRule\ToPascalCaseRule.csproj" />
   </ItemGroup>
 
   <ItemGroup>

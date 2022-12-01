@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Diagnostics;
 using MessageBox = System.Windows.Forms.MessageBox;
+//using System.Windows.Shapes;
 
 namespace BatchRename
 {
@@ -39,11 +40,11 @@ namespace BatchRename
 
         private void winMain_Loaded(object sender, RoutedEventArgs e)
         {
+            // Load last size and position of screen
             this.Top = Properties.Settings.Default.Top;
             this.Left = Properties.Settings.Default.Left;
             this.Height = Properties.Settings.Default.Height;
             this.Width = Properties.Settings.Default.Width;
-            // Very quick and dirty - but it does the job
             if (Properties.Settings.Default.Maximized)
             {
                 WindowState = WindowState.Maximized;
@@ -51,6 +52,9 @@ namespace BatchRename
 
             RenameRuleParserFactory.Instance().Register();
             BaseWindowFactory.Instance().Register();
+
+            // Load last preset
+            loadLastPreset(Properties.Settings.Default.Preset);
 
             var items = RenameRuleParserFactory.Instance().RuleParserPrototypes;
 
@@ -531,6 +535,27 @@ namespace BatchRename
 
             EvokeToUpdateNewName();
         }
+        void loadLastPreset(string preset)
+        {
+            var rules = preset.Split("\n", StringSplitOptions.None);
+            for (int i = 1; i < rules.Length - 1; i++)
+            {
+                int firstSpaceIndex = rules[i].IndexOf(" ");
+                string firstWord = (firstSpaceIndex > 0) ? rules[i].Substring(0, firstSpaceIndex) : rules[i];
+
+                IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(firstWord);
+                IRenameRule rule = parser.Parse(rules[i]);
+
+                _runRules.Add(new RunRule()
+                {
+                    Index = _runRules.Count,
+                    Name = firstWord,
+                    Title = parser.Title,
+                    IsPlugAndPlay = parser.IsPlugAndPlay,
+                    Command = rules[i]
+                });
+            }
+        }
         #endregion
 
         #region file handler
@@ -811,6 +836,7 @@ namespace BatchRename
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            // Save window state
             if (WindowState == WindowState.Maximized)
             {
                 // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
@@ -828,7 +854,7 @@ namespace BatchRename
                 Properties.Settings.Default.Width = this.Width;
                 Properties.Settings.Default.Maximized = false;
             }
-
+            Properties.Settings.Default.Preset = CreateWriterFromRunRules();
             Properties.Settings.Default.Save();
         }
     }

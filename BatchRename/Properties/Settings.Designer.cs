@@ -82,5 +82,17 @@ namespace BatchRename.Properties {
                 this["Maximized"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Preset {
+            get {
+                return ((string)(this["Preset"]));
+            }
+            set {
+                this["Preset"] = value;
+            }
+        }
     }
 }
