@@ -1,62 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-	<UseWindowsForms>true</UseWindowsForms>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net6.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Images\delete.png" />
-    <None Remove="Images\edit.ico" />
-    <None Remove="Images\exit.png" />
-    <None Remove="Images\file.png" />
-    <None Remove="Images\folder.png" />
-    <None Remove="Images\minus.png" />
-    <None Remove="Images\open.png" />
-    <None Remove="Images\play.png" />
-    <None Remove="Images\plus.png" />
-    <None Remove="Images\save.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Images\delete.png" />
+		<None Remove="Images\edit.ico" />
+		<None Remove="Images\exit.png" />
+		<None Remove="Images\file.png" />
+		<None Remove="Images\folder.png" />
+		<None Remove="Images\minus.png" />
+		<None Remove="Images\open.png" />
+		<None Remove="Images\play.png" />
+		<None Remove="Images\plus.png" />
+		<None Remove="Images\save.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AddPrefixRule\AddPrefixRule.csproj" />
-    <ProjectReference Include="..\AllLowerCaseRule\AllLowerCaseRule.csproj" />
-    <ProjectReference Include="..\ChangeExtensionRule\ChangeExtensionRule.csproj" />
-    <ProjectReference Include="..\Contract\Contract.csproj" />
-    <ProjectReference Include="..\RemoveAllSpaceRule\RemoveAllSpaceRule.csproj" />
-    <ProjectReference Include="..\ReplaceRule\ReplaceRule.csproj" />
-    <ProjectReference Include="..\ToPascalCaseRule\ToPascalCaseRule.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AddPrefixRule\AddPrefixRule.csproj" />
+		<ProjectReference Include="..\AddSuffixRule\AddSuffixRule.csproj" />
+		<ProjectReference Include="..\AllLowerCaseRule\AllLowerCaseRule.csproj" />
+		<ProjectReference Include="..\ChangeExtensionRule\ChangeExtensionRule.csproj" />
+		<ProjectReference Include="..\Contract\Contract.csproj" />
+		<ProjectReference Include="..\RemoveAllSpaceRule\RemoveAllSpaceRule.csproj" />
+		<ProjectReference Include="..\ReplaceRule\ReplaceRule.csproj" />
+		<ProjectReference Include="..\ToPascalCaseRule\ToPascalCaseRule.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Images\delete.png" />
-    <Resource Include="Images\edit.ico" />
-    <Resource Include="Images\exit.png" />
-    <Resource Include="Images\file.png" />
-    <Resource Include="Images\folder.png" />
-    <Resource Include="Images\minus.png" />
-    <Resource Include="Images\open.png" />
-    <Resource Include="Images\play.png" />
-    <Resource Include="Images\plus.png" />
-    <Resource Include="Images\save.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Images\delete.png" />
+		<Resource Include="Images\edit.ico" />
+		<Resource Include="Images\exit.png" />
+		<Resource Include="Images\file.png" />
+		<Resource Include="Images\folder.png" />
+		<Resource Include="Images\minus.png" />
+		<Resource Include="Images\open.png" />
+		<Resource Include="Images\play.png" />
+		<Resource Include="Images\plus.png" />
+		<Resource Include="Images\save.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 
 </Project>

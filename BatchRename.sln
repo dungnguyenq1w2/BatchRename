@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReplaceRule", "ReplaceRule\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToPascalCaseRule", "ToPascalCaseRule\ToPascalCaseRule.csproj", "{AFE695DE-56F6-4AB9-8C95-8CA13EB04A1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChangeExtensionRule", "ChangeExtensionRule\ChangeExtensionRule.csproj", "{A48911D4-19B8-42E4-9B71-197C95E09F1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChangeExtensionRule", "ChangeExtensionRule\ChangeExtensionRule.csproj", "{A48911D4-19B8-42E4-9B71-197C95E09F1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddPrefixRule", "AddPrefixRule\AddPrefixRule.csproj", "{4BE1A0A6-E232-4769-8199-6E311B3BA67B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddPrefixRule", "AddPrefixRule\AddPrefixRule.csproj", "{4BE1A0A6-E232-4769-8199-6E311B3BA67B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddSuffixRule", "AddSuffixRule\AddSuffixRule.csproj", "{A44C2BD9-5CD1-4C39-8742-614D45623810}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{4BE1A0A6-E232-4769-8199-6E311B3BA67B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BE1A0A6-E232-4769-8199-6E311B3BA67B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BE1A0A6-E232-4769-8199-6E311B3BA67B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A44C2BD9-5CD1-4C39-8742-614D45623810}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A44C2BD9-5CD1-4C39-8742-614D45623810}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A44C2BD9-5CD1-4C39-8742-614D45623810}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A44C2BD9-5CD1-4C39-8742-614D45623810}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
