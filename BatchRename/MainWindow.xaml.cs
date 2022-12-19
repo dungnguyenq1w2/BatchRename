@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Diagnostics;
 using MessageBox = System.Windows.Forms.MessageBox;
+using System.Data;
 //using System.Windows.Shapes;
 
 namespace BatchRename
@@ -331,7 +332,7 @@ namespace BatchRename
 
         private void MoveAllFilesToCopyFolder(string srcPath, string desPath)
         {
-            if(Directory.Exists(srcPath) && Directory.Exists(desPath))
+            if (Directory.Exists(srcPath) && Directory.Exists(desPath))
             {
                 foreach (string dirPath in Directory.GetDirectories(srcPath, "*", SearchOption.AllDirectories))
                 {
@@ -375,7 +376,7 @@ namespace BatchRename
                     if (type == (int)FileType.File)
                     {
                         Dictionary<string, int> duplicationsCopyfile = new Dictionary<string, int>();
-                        
+
                         foreach (var file in _files)
                         {
                             string newPath = Path.Combine(directory, file.Name);
@@ -561,6 +562,12 @@ namespace BatchRename
             {
                 if (!string.IsNullOrEmpty(runRule.Command))
                 {
+                    if (runRule.Command.Contains("AddEndCounter"))
+                    {
+                        //newName = ImposeAddEndCounterRule(newName, addEndCounterRule);
+                        continue;
+                    }
+
                     IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(runRule.Name);
                     IRenameRule rule = parser.Parse(runRule.Command);
                     newName = rule.Rename(newName);
@@ -572,14 +579,39 @@ namespace BatchRename
 
         private void EvokeToUpdateNewName()
         {
-            foreach (var file in _files)
-            {
-                file.NewName = ImposeRule(file.Name);
-            }
+            int addEndCounterRuleIndex = _runRules.ToList().FindIndex((runRule) => runRule.Command.Contains("AddEndCounter"));
+            IRenameRule addEndCounterRule;
 
-            foreach (var folder in _folders)
+            if (addEndCounterRuleIndex != -1)
             {
-                folder.NewName = ImposeRule(folder.Name);
+                RunRule runRule = _runRules[addEndCounterRuleIndex];
+
+                IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(runRule.Name);
+                addEndCounterRule = parser.Parse(runRule.Command);
+
+                foreach (var file in _files)
+                {
+                    file.NewName = ImposeRule(file.Name);
+                    file.NewName = addEndCounterRule.Rename(file.NewName);
+                }
+
+                foreach (var folder in _folders)
+                {
+                    folder.NewName = ImposeRule(folder.Name);
+                    folder.NewName = addEndCounterRule.Rename(folder.NewName);
+                }
+            }
+            else
+            {
+                foreach (var file in _files)
+                {
+                    file.NewName = ImposeRule(file.Name);
+                }
+
+                foreach (var folder in _folders)
+                {
+                    folder.NewName = ImposeRule(folder.Name);
+                }
             }
         }
 
@@ -651,7 +683,7 @@ namespace BatchRename
         private void btnRemoveRunRuleItself_Click(object sender, RoutedEventArgs e)
         {
             var btnRemove = sender as System.Windows.Controls.Button;
-            if(int.TryParse(btnRemove!.Tag.ToString(), out int tag))
+            if (int.TryParse(btnRemove!.Tag.ToString(), out int tag))
             {
                 _runRules.RemoveAt(tag);
             }
@@ -862,7 +894,7 @@ namespace BatchRename
         }
         #endregion
 
-        
+
         private void lvRunRules_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 

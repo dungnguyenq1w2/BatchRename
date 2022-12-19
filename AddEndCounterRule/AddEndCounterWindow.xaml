@@ -1,0 +1,80 @@
+﻿<base:BaseWindow
+    x:Class="AddEndCounterRule.AddEndCounterWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:base="clr-namespace:Contract;assembly=Contract"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Add end counter"
+    Width="350"
+    Height="315"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <ResourceDictionary Source="pack://application:,,,/Contract;component/ValidationDictionary.xaml" />
+    </Window.Resources>
+
+    <StackPanel Loaded="spMain_Loaded">
+        <Border Padding="15,10,15,10">
+            <StackPanel>
+                <Label Content="Start counter (an integer)" />
+                <TextBox
+                    x:Name="txtCounter"
+                    Padding="5"
+                    Style="{StaticResource fileNameRelatedError}"
+                    Validation.ErrorTemplate="{StaticResource fileNameValidationTemplate}">
+                    <TextBox.Text>
+                        <Binding Path="Counter" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <base:FileNameRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <Label Content="Step size (an integer)" />
+                <TextBox
+                    x:Name="txtStepSize"
+                    Padding="5"
+                    Style="{StaticResource fileNameRelatedError}"
+                    Validation.ErrorTemplate="{StaticResource fileNameValidationTemplate}">
+                    <TextBox.Text>
+                        <Binding Path="StepSize" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <base:FileNameRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <Label Content="Number of digits (an integer)" />
+                <TextBox
+                    x:Name="txtNumberDigits"
+                    Padding="5"
+                    Style="{StaticResource fileNameRelatedError}"
+                    Validation.ErrorTemplate="{StaticResource fileNameValidationTemplate}">
+                    <TextBox.Text>
+                        <Binding Path="NumberDigits" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <base:FileNameRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <WrapPanel Margin="0,15,0,0" HorizontalAlignment="Right">
+                    <Button
+                        x:Name="btnCancel"
+                        Padding="7,3,7,3"
+                        Click="btnCancel_Click"
+                        Content="Cancel" />
+                    <Button
+                        x:Name="btnSave"
+                        Margin="10,0,0,0"
+                        Padding="7,3,7,3"
+                        Click="btnSave_Click"
+                        Content="Save" />
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</base:BaseWindow>
+
