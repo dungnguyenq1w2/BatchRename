@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddPrefixRule", "AddPrefixR
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddSuffixRule", "AddSuffixRule\AddSuffixRule.csproj", "{A44C2BD9-5CD1-4C39-8742-614D45623810}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddEndCounterRule", "AddEndCounterRule\AddEndCounterRule.csproj", "{5EA017B6-1FD6-43AA-B95D-72CA0D3CFC55}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AddEndCounterRule", "AddEndCounterRule\AddEndCounterRule.csproj", "{5EA017B6-1FD6-43AA-B95D-72CA0D3CFC55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

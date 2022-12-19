@@ -94,5 +94,29 @@ namespace BatchRename.Properties {
                 this["Preset"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ActiveFiles {
+            get {
+                return ((string)(this["ActiveFiles"]));
+            }
+            set {
+                this["ActiveFiles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ActiveFolders {
+            get {
+                return ((string)(this["ActiveFolders"]));
+            }
+            set {
+                this["ActiveFolders"] = value;
+            }
+        }
     }
 }

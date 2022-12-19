@@ -13,6 +13,9 @@ using System.Linq;
 using System.Diagnostics;
 using MessageBox = System.Windows.Forms.MessageBox;
 using System.Data;
+using AddEndCounterRule;
+using System.Windows.Threading;
+using System.Windows.Controls.Primitives;
 //using System.Windows.Shapes;
 
 namespace BatchRename
@@ -34,6 +37,10 @@ namespace BatchRename
             Folder
         }
 
+        private DispatcherTimer? _dispatcherTimer;
+
+        private const int AUTOSAVE_INTERVAL_SECONDS = 3;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -46,6 +53,7 @@ namespace BatchRename
             this.Left = Properties.Settings.Default.Left;
             this.Height = Properties.Settings.Default.Height;
             this.Width = Properties.Settings.Default.Width;
+
             if (Properties.Settings.Default.Maximized)
             {
                 WindowState = WindowState.Maximized;
@@ -54,8 +62,13 @@ namespace BatchRename
             RenameRuleParserFactory.Instance().Register();
             BaseWindowFactory.Instance().Register();
 
-            // Load last preset
+            // Load last preset, files, folders
             loadLastPreset(Properties.Settings.Default.Preset);
+            loadLastActiveFiles(Properties.Settings.Default.ActiveFiles);
+            loadLastActiveFolders(Properties.Settings.Default.ActiveFolders);
+
+            // Apply renaming rules for files & folders after loaded
+            EvokeToUpdateNewName();
 
             var items = RenameRuleParserFactory.Instance().RuleParserPrototypes;
 
@@ -80,6 +93,18 @@ namespace BatchRename
             lvRunRules.ItemsSource = _runRules;
             lvFiles.ItemsSource = _files;
             lvFolders.ItemsSource = _folders;
+
+            // start auto-save
+            _dispatcherTimer = new DispatcherTimer();
+            _dispatcherTimer.Interval = TimeSpan.FromMilliseconds(AUTOSAVE_INTERVAL_SECONDS * 1000);
+            _dispatcherTimer.Tick += PeriodicAutoSave;
+            _dispatcherTimer.Start();
+        }
+
+        private void PeriodicAutoSave(object? o, EventArgs e)
+        {
+            SaveCurrentConditions();
+            Debug.WriteLine("----- AUTO-SAVED !!!");
         }
 
         #region project handler
@@ -579,41 +604,78 @@ namespace BatchRename
 
         private void EvokeToUpdateNewName()
         {
-            int addEndCounterRuleIndex = _runRules.ToList().FindIndex((runRule) => runRule.Command.Contains("AddEndCounter"));
-            IRenameRule addEndCounterRule;
-
-            if (addEndCounterRuleIndex != -1)
+            // Reset all "new name" value to "name" value
+            foreach (var file in _files)
             {
-                RunRule runRule = _runRules[addEndCounterRuleIndex];
-
-                IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(runRule.Name);
-                addEndCounterRule = parser.Parse(runRule.Command);
-
-                foreach (var file in _files)
-                {
-                    file.NewName = ImposeRule(file.Name);
-                    file.NewName = addEndCounterRule.Rename(file.NewName);
-                }
-
-                foreach (var folder in _folders)
-                {
-                    folder.NewName = ImposeRule(folder.Name);
-                    folder.NewName = addEndCounterRule.Rename(folder.NewName);
-                }
+                file.NewName = file.Name;
             }
-            else
-            {
-                foreach (var file in _files)
-                {
-                    file.NewName = ImposeRule(file.Name);
-                }
 
-                foreach (var folder in _folders)
+            foreach (var folder in _folders)
+            {
+                folder.NewName = folder.Name;
+            }
+
+            // Each renaming rule will apply for all files & folders 
+            foreach (var runRule in _runRules)
+            {
+                if (!string.IsNullOrEmpty(runRule.Command))
                 {
-                    folder.NewName = ImposeRule(folder.Name);
+                    IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(runRule.Name);
+                    IRenameRule rule = parser.Parse(runRule.Command);
+
+                    foreach (var file in _files)
+                    {
+                        file.NewName = rule.Rename(file.NewName);
+                    }
+
+                    foreach (var folder in _folders)
+                    {
+                        folder.NewName = rule.Rename(folder.NewName);
+                    }
                 }
             }
         }
+
+        //private void EvokeToUpdateNewName()
+        //{
+        //    foreach (var file in _files)
+        //    {
+        //        file.NewName = ImposeRule(file.Name);
+        //    }
+
+        //    foreach (var folder in _folders)
+        //    {
+        //        folder.NewName = ImposeRule(folder.Name);
+        //    }
+
+        //    EvokeToAddEndCounter();
+        //}
+
+        //// Add end counter to 'newName's; call after apply all other Rules
+        //private void EvokeToAddEndCounter()
+        //{
+        //    foreach (var runRule in _runRules)
+        //    {
+        //        if (!string.IsNullOrEmpty(runRule.Command) && runRule.Command.Contains("AddEndCounter"))
+        //        {
+        //            IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(runRule.Name);
+        //            IRenameRule addEndCounterRule = parser.Parse(runRule.Command);
+
+        //            foreach (var file in _files)
+        //            {
+        //                file.NewName = addEndCounterRule.Rename(file.NewName);
+        //            }
+
+        //            // Counter of folders start from "Start value input" too instead of continue increase Counter
+        //            addEndCounterRule = parser.Parse(runRule.Command);
+
+        //            foreach (var folder in _folders)
+        //            {
+        //                folder.NewName = addEndCounterRule.Rename(folder.NewName);
+        //            }
+        //        }
+        //    }
+        //}
 
         private void UpdateOrder()
         {
@@ -713,6 +775,40 @@ namespace BatchRename
                 });
             }
         }
+
+        void loadLastActiveFiles(string activeFiles)
+        {
+            string[]? tokens = activeFiles.Split("\n", StringSplitOptions.None);
+            for (int i = 1; i < tokens.Length - 1; i++)
+            {
+                string filePath = tokens[i];
+                string fileName = Path.GetFileName(filePath);
+
+                _files.Add(new File()
+                {
+                    Name = fileName,
+                    //NewName = "",
+                    Path = filePath
+                });
+            }
+        }
+
+        void loadLastActiveFolders(string activeFolders)
+        {
+            string[]? tokens = activeFolders.Split("\n", StringSplitOptions.None);
+            for (int i = 1; i < tokens.Length - 1; i++)
+            {
+                string folderPath = tokens[i];
+                string folderName = Path.GetFileName(folderPath);
+
+                _folders.Add(new File()
+                {
+                    Name = folderName,
+                    //NewName = "",
+                    Path = folderPath
+                });
+            }
+        }
         #endregion
 
         #region file handler
@@ -787,12 +883,15 @@ namespace BatchRename
                         _files.Add(new File()
                         {
                             Name = openFileDialog.SafeFileNames[i],
-                            NewName = ImposeRule(openFileDialog.SafeFileNames[i]),
+                            //NewName = ImposeRule(openFileDialog.SafeFileNames[i]),
                             Path = openFileDialog.FileNames[i]
                         });
                     }
                 }
             }
+
+            //
+            EvokeToUpdateNewName();
         }
 
         private void btnAddFilesInDirectory_Click(object sender, RoutedEventArgs e)
@@ -812,12 +911,15 @@ namespace BatchRename
                         _files.Add(new File()
                         {
                             Name = Path.GetFileName(file),
-                            NewName = ImposeRule(Path.GetFileName(file)),
+                            //NewName = ImposeRule(Path.GetFileName(file)),
                             Path = file
                         });
                     }
                 }
             }
+
+            //
+            EvokeToUpdateNewName();
         }
         private void btnRemoveFile_Click(object sender, RoutedEventArgs e)
         {
@@ -845,12 +947,15 @@ namespace BatchRename
                         _files.Add(new File()
                         {
                             Name = Path.GetFileName(file),
-                            NewName = ImposeRule(Path.GetFileName(file)),
+                            //NewName = ImposeRule(Path.GetFileName(file)),
                             Path = file
                         });
                     }
                 }
             }
+
+            //
+            EvokeToUpdateNewName();
         }
         #endregion
 
@@ -871,11 +976,14 @@ namespace BatchRename
                     _folders.Add(new File()
                     {
                         Name = Path.GetFileName(directory),
-                        NewName = ImposeRule(Path.GetFileName(directory)),
+                        //NewName = ImposeRule(Path.GetFileName(directory)),
                         Path = directory
                     });
                 }
             }
+
+            //
+            EvokeToUpdateNewName();
         }
 
         private void btnRemoveFolder_Click(object sender, RoutedEventArgs e)
@@ -902,7 +1010,19 @@ namespace BatchRename
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            // Save window state
+            SaveWindowState();
+            SaveCurrentConditions();
+
+            // 
+            if (_dispatcherTimer != null)
+            {
+                _dispatcherTimer.Stop();
+                _dispatcherTimer = null;
+            }
+        }
+
+        private void SaveWindowState()
+        {
             if (WindowState == WindowState.Maximized)
             {
                 // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
@@ -920,7 +1040,16 @@ namespace BatchRename
                 Properties.Settings.Default.Width = this.Width;
                 Properties.Settings.Default.Maximized = false;
             }
+
+            Properties.Settings.Default.Save();
+        }
+
+        private void SaveCurrentConditions()
+        {
             Properties.Settings.Default.Preset = CreateWriterFromRunRules();
+            Properties.Settings.Default.ActiveFiles = CreateWriterFromTargets((int)FileType.File);
+            Properties.Settings.Default.ActiveFolders = CreateWriterFromTargets((int)FileType.Folder);
+
             Properties.Settings.Default.Save();
         }
     }
