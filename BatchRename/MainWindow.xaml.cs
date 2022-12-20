@@ -54,49 +54,8 @@ namespace BatchRename
 
         private void winMain_Loaded(object sender, RoutedEventArgs e)
         {
-            // Load last size and position of screen
-            //this.Top = Properties.Settings.Default.Top;
-            //this.Left = Properties.Settings.Default.Left;
-            //this.Height = Properties.Settings.Default.Height;
-            //this.Width = Properties.Settings.Default.Width;
-
-            //if (Properties.Settings.Default.Maximized)
-            //{
-            //    WindowState = WindowState.Maximized;
-            //}
-
             RenameRuleParserFactory.Instance().Register();
             BaseWindowFactory.Instance().Register();
-
-            // Load last preset, files, folders
-            //loadLastPreset(Properties.Settings.Default.Preset);
-            //loadLastActiveFiles(Properties.Settings.Default.ActiveFiles);
-            //loadLastActiveFolders(Properties.Settings.Default.ActiveFolders);
-
-
-
-            LoadLastWorkingCondition();
-
-            this.Top = _workingCondition.Top;
-            this.Left = _workingCondition.Left;
-            this.Height = _workingCondition.Height;
-            this.Width = _workingCondition.Width;
-            if (_workingCondition.Maximized)
-            {
-                this.WindowState = WindowState.Minimized;
-            }
-            //this.Top = Properties.Settings.Default.Top;
-            //this.Left = Properties.Settings.Default.Left;
-            //this.Height = Properties.Settings.Default.Height;
-            //this.Width = Properties.Settings.Default.Width;
-
-            //if (Properties.Settings.Default.Maximized)
-            //{
-            //    WindowState = WindowState.Maximized;
-            //}
-
-            // Apply renaming rules for files & folders after loaded
-            EvokeToUpdateNewName();
 
             var items = RenameRuleParserFactory.Instance().RuleParserPrototypes;
 
@@ -118,11 +77,28 @@ namespace BatchRename
                 wpRuleChooser.Children.Add(button);
             }
 
+            // Load last preset, files, folders, window state to _workingCondition
+            LoadLastWorkingCondition();
+
+            // Apply working condition
+            this.Top = _workingCondition.Top;
+            this.Left = _workingCondition.Left;
+            this.Height = _workingCondition.Height;
+            this.Width = _workingCondition.Width;
+            if (_workingCondition.Maximized)
+            {
+                this.WindowState = WindowState.Minimized;
+            }
+
+            // Apply renaming rules for files & folders after loaded
+            EvokeToUpdateNewName();
+
+            //
             lvRunRules.ItemsSource = _runRules;
             lvFiles.ItemsSource = _files;
             lvFolders.ItemsSource = _folders;
 
-            // start auto-save
+            // Start auto-save after each interval
             _dispatcherTimer = new DispatcherTimer();
             _dispatcherTimer.Interval = TimeSpan.FromMilliseconds(AUTOSAVE_INTERVAL_SECONDS * 1000);
             _dispatcherTimer.Tick += PeriodicAutoSave;
@@ -132,7 +108,7 @@ namespace BatchRename
         private void PeriodicAutoSave(object? o, EventArgs e)
         {
             SaveWorkingCondition();
-            Debug.WriteLine("----- AUTO-SAVED !!! -----");
+            //Debug.WriteLine("----- AUTO-SAVED !!! -----");
         }
 
         #region project handler
@@ -789,55 +765,65 @@ namespace BatchRename
             //_files.Clear();
             //_folders.Clear();
 
-
-            string jsonString = System.IO.File.ReadAllText(@"D:\Download\[1000Study]\[Term7]\1. Windows Programming\[project01_BatchRename]\test.json");
-            _workingCondition = JsonConvert.DeserializeObject<WorkingCondition>(jsonString);
-
-            if (_workingCondition != null)
+            try
             {
-                foreach (string ruleCommand in _workingCondition.Preset)
+                string exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+                if (System.IO.File.Exists($"{exeFolderPath}\\Autosave\\Autosave.json") == false)
                 {
-                    string ruleName = ruleCommand.Split(" ")[0];
-                    IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(ruleName);
-                    IRenameRule rule = parser.Parse(ruleCommand);
-
-                    _runRules.Add(new RunRule()
-                    {
-                        Index = _runRules.Count,
-                        //Index = i,
-                        Name = ruleName,
-                        Title = parser.Title,
-                        IsPlugAndPlay = parser.IsPlugAndPlay,
-                        Command = ruleCommand
-                    });
+                    return;
                 }
 
-                foreach (string filePath in _workingCondition.ActiveFiles)
+                string jsonString = System.IO.File.ReadAllText($"{exeFolderPath}\\Autosave\\Autosave.json");
+                _workingCondition = JsonConvert.DeserializeObject<WorkingCondition>(jsonString);
+
+                if (_workingCondition != null)
                 {
-                    string fileName = Path.GetFileName(filePath);
-
-                    _files.Add(new File()
+                    foreach (string ruleCommand in _workingCondition.Preset)
                     {
-                        Name = fileName,
-                        //NewName= "",
-                        Path = filePath,
-                    });
-                }
+                        string ruleName = ruleCommand.Split(" ")[0];
+                        IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(ruleName);
+                        IRenameRule rule = parser.Parse(ruleCommand);
 
-                foreach (string folderPath in _workingCondition.ActiveFolders)
-                {
-                    string folderName = Path.GetFileName(folderPath);
+                        _runRules.Add(new RunRule()
+                        {
+                            Index = _runRules.Count,
+                            //Index = i,
+                            Name = ruleName,
+                            Title = parser.Title,
+                            IsPlugAndPlay = parser.IsPlugAndPlay,
+                            Command = ruleCommand
+                        });
+                    }
 
-                    _folders.Add(new File()
+                    foreach (string filePath in _workingCondition.ActiveFiles)
                     {
-                        Name = folderName,
-                        //NewName= "",
-                        Path = folderPath,
-                    });
-                }
+                        string fileName = Path.GetFileName(filePath);
 
+                        _files.Add(new File()
+                        {
+                            Name = fileName,
+                            //NewName= "",
+                            Path = filePath,
+                        });
+                    }
+
+                    foreach (string folderPath in _workingCondition.ActiveFolders)
+                    {
+                        string folderName = Path.GetFileName(folderPath);
+
+                        _folders.Add(new File()
+                        {
+                            Name = folderName,
+                            //NewName= "",
+                            Path = folderPath,
+                        });
+                    }
+                }
             }
-
+            catch (Exception)
+            {
+                _workingCondition = new WorkingCondition();
+            }
         }
         void loadLastPreset(string preset)
         {
@@ -1098,7 +1084,6 @@ namespace BatchRename
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            SaveWindowState();
             SaveWorkingCondition();
 
             // 
@@ -1109,43 +1094,35 @@ namespace BatchRename
             }
         }
 
-        private void SaveWindowState()
-        {
-            if (WindowState == WindowState.Maximized)
-            {
-                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
-                Properties.Settings.Default.Top = RestoreBounds.Top;
-                Properties.Settings.Default.Left = RestoreBounds.Left;
-                Properties.Settings.Default.Height = RestoreBounds.Height;
-                Properties.Settings.Default.Width = RestoreBounds.Width;
-                Properties.Settings.Default.Maximized = true;
-            }
-            else
-            {
-                Properties.Settings.Default.Top = this.Top;
-                Properties.Settings.Default.Left = this.Left;
-                Properties.Settings.Default.Height = this.Height;
-                Properties.Settings.Default.Width = this.Width;
-                Properties.Settings.Default.Maximized = false;
-            }
-
-            Properties.Settings.Default.Save();
-        }
+        //private void SaveWindowState()
+        //{
+        //    // Save current size & position of screen
+        //    if (WindowState == WindowState.Maximized)
+        //    {
+        //        _workingCondition.Top = RestoreBounds.Top;
+        //        _workingCondition.Left = RestoreBounds.Left;
+        //        _workingCondition.Height = RestoreBounds.Height;
+        //        _workingCondition.Width = RestoreBounds.Width;
+        //        _workingCondition.Maximized = true;
+        //    }
+        //    else
+        //    {
+        //        _workingCondition.Top = this.Top;
+        //        _workingCondition.Left = this.Left;
+        //        _workingCondition.Height = this.Height;
+        //        _workingCondition.Width = this.Width;
+        //        _workingCondition.Maximized = false;
+        //    }
+        //}
 
         private void SaveWorkingCondition()
         {
-            //Properties.Settings.Default.Preset = CreateWriterFromRunRules();
-            //Properties.Settings.Default.ActiveFiles = CreateWriterFromTargets((int)FileType.File);
-            //Properties.Settings.Default.ActiveFolders = CreateWriterFromTargets((int)FileType.Folder);
-
-            //Properties.Settings.Default.Save();
-
-
+            // Reset all working condition
             _workingCondition.Reset();
 
+            // Save current size & position of screen
             if (WindowState == WindowState.Maximized)
             {
-                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
                 _workingCondition.Top = RestoreBounds.Top;
                 _workingCondition.Left = RestoreBounds.Left;
                 _workingCondition.Height = RestoreBounds.Height;
@@ -1161,6 +1138,7 @@ namespace BatchRename
                 _workingCondition.Maximized = false;
             }
 
+            // Add preset
             foreach (var runRule in _runRules)
             {
                 if (!string.IsNullOrEmpty(runRule.Command))
@@ -1169,18 +1147,35 @@ namespace BatchRename
                 }
             }
 
+            // Add active files
             foreach (var file in _files)
             {
                 _workingCondition.ActiveFiles.Add(file.Path);
             }
 
+            // Add active folders
             foreach (var folder in _folders)
             {
                 _workingCondition.ActiveFolders.Add(folder.Path);
             }
 
-            string jsonString = JsonConvert.SerializeObject(_workingCondition, Formatting.Indented);
-            System.IO.File.WriteAllText(@"D:\Download\[1000Study]\[Term7]\1. Windows Programming\[project01_BatchRename]\test.json", jsonString);
+            // Save all working condition to JSON file (location in [exe_folder_path]/Autosave/autosave.json)
+            try
+            {
+                string jsonString = JsonConvert.SerializeObject(_workingCondition, Formatting.Indented);
+
+                var exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+                if (System.IO.Directory.Exists($"{exeFolderPath}\\Autosave") == false)
+                {
+                    System.IO.Directory.CreateDirectory($"{exeFolderPath}\\Autosave");
+                }
+
+                System.IO.File.WriteAllText($"{exeFolderPath}\\Autosave\\Autosave.json", jsonString);
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
     }
 }
