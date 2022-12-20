@@ -16,13 +16,17 @@ using System.Data;
 using AddEndCounterRule;
 using System.Windows.Threading;
 using System.Windows.Controls.Primitives;
+//using System.Text.Json;
 //using System.Windows.Shapes;
+using Newtonsoft.Json;
+using System.Net.Http.Json;
 
 namespace BatchRename
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
     public partial class MainWindow : Window
     {
         private BindingList<RunRule> _runRules = new BindingList<RunRule>();
@@ -30,6 +34,8 @@ namespace BatchRename
         private BindingList<File> _files = new BindingList<File>();
 
         private BindingList<File> _folders = new BindingList<File>();
+
+        private WorkingCondition _workingCondition = new WorkingCondition();
 
         private enum FileType
         {
@@ -39,7 +45,7 @@ namespace BatchRename
 
         private DispatcherTimer? _dispatcherTimer;
 
-        private const int AUTOSAVE_INTERVAL_SECONDS = 3;
+        private const int AUTOSAVE_INTERVAL_SECONDS = 100;
 
         public MainWindow()
         {
@@ -49,23 +55,45 @@ namespace BatchRename
         private void winMain_Loaded(object sender, RoutedEventArgs e)
         {
             // Load last size and position of screen
-            this.Top = Properties.Settings.Default.Top;
-            this.Left = Properties.Settings.Default.Left;
-            this.Height = Properties.Settings.Default.Height;
-            this.Width = Properties.Settings.Default.Width;
+            //this.Top = Properties.Settings.Default.Top;
+            //this.Left = Properties.Settings.Default.Left;
+            //this.Height = Properties.Settings.Default.Height;
+            //this.Width = Properties.Settings.Default.Width;
 
-            if (Properties.Settings.Default.Maximized)
-            {
-                WindowState = WindowState.Maximized;
-            }
+            //if (Properties.Settings.Default.Maximized)
+            //{
+            //    WindowState = WindowState.Maximized;
+            //}
 
             RenameRuleParserFactory.Instance().Register();
             BaseWindowFactory.Instance().Register();
 
             // Load last preset, files, folders
-            loadLastPreset(Properties.Settings.Default.Preset);
-            loadLastActiveFiles(Properties.Settings.Default.ActiveFiles);
-            loadLastActiveFolders(Properties.Settings.Default.ActiveFolders);
+            //loadLastPreset(Properties.Settings.Default.Preset);
+            //loadLastActiveFiles(Properties.Settings.Default.ActiveFiles);
+            //loadLastActiveFolders(Properties.Settings.Default.ActiveFolders);
+
+
+
+            LoadLastWorkingCondition();
+
+            this.Top = _workingCondition.Top;
+            this.Left = _workingCondition.Left;
+            this.Height = _workingCondition.Height;
+            this.Width = _workingCondition.Width;
+            if (_workingCondition.Maximized)
+            {
+                this.WindowState = WindowState.Minimized;
+            }
+            //this.Top = Properties.Settings.Default.Top;
+            //this.Left = Properties.Settings.Default.Left;
+            //this.Height = Properties.Settings.Default.Height;
+            //this.Width = Properties.Settings.Default.Width;
+
+            //if (Properties.Settings.Default.Maximized)
+            //{
+            //    WindowState = WindowState.Maximized;
+            //}
 
             // Apply renaming rules for files & folders after loaded
             EvokeToUpdateNewName();
@@ -103,8 +131,8 @@ namespace BatchRename
 
         private void PeriodicAutoSave(object? o, EventArgs e)
         {
-            SaveCurrentConditions();
-            Debug.WriteLine("----- AUTO-SAVED !!!");
+            SaveWorkingCondition();
+            Debug.WriteLine("----- AUTO-SAVED !!! -----");
         }
 
         #region project handler
@@ -754,8 +782,67 @@ namespace BatchRename
 
             EvokeToUpdateNewName();
         }
+
+        void LoadLastWorkingCondition()
+        {
+            //_runRules.Clear();
+            //_files.Clear();
+            //_folders.Clear();
+
+
+            string jsonString = System.IO.File.ReadAllText(@"D:\Download\[1000Study]\[Term7]\1. Windows Programming\[project01_BatchRename]\test.json");
+            _workingCondition = JsonConvert.DeserializeObject<WorkingCondition>(jsonString);
+
+            if (_workingCondition != null)
+            {
+                foreach (string ruleCommand in _workingCondition.Preset)
+                {
+                    string ruleName = ruleCommand.Split(" ")[0];
+                    IRenameRuleParser parser = RenameRuleParserFactory.Instance().GetRuleParser(ruleName);
+                    IRenameRule rule = parser.Parse(ruleCommand);
+
+                    _runRules.Add(new RunRule()
+                    {
+                        Index = _runRules.Count,
+                        //Index = i,
+                        Name = ruleName,
+                        Title = parser.Title,
+                        IsPlugAndPlay = parser.IsPlugAndPlay,
+                        Command = ruleCommand
+                    });
+                }
+
+                foreach (string filePath in _workingCondition.ActiveFiles)
+                {
+                    string fileName = Path.GetFileName(filePath);
+
+                    _files.Add(new File()
+                    {
+                        Name = fileName,
+                        //NewName= "",
+                        Path = filePath,
+                    });
+                }
+
+                foreach (string folderPath in _workingCondition.ActiveFolders)
+                {
+                    string folderName = Path.GetFileName(folderPath);
+
+                    _folders.Add(new File()
+                    {
+                        Name = folderName,
+                        //NewName= "",
+                        Path = folderPath,
+                    });
+                }
+
+            }
+
+        }
         void loadLastPreset(string preset)
         {
+            //_runRules.Clear();
+
             var rules = preset.Split("\n", StringSplitOptions.None);
             for (int i = 1; i < rules.Length - 1; i++)
             {
@@ -768,6 +855,7 @@ namespace BatchRename
                 _runRules.Add(new RunRule()
                 {
                     Index = _runRules.Count,
+                    //Index = i,
                     Name = firstWord,
                     Title = parser.Title,
                     IsPlugAndPlay = parser.IsPlugAndPlay,
@@ -1011,7 +1099,7 @@ namespace BatchRename
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             SaveWindowState();
-            SaveCurrentConditions();
+            SaveWorkingCondition();
 
             // 
             if (_dispatcherTimer != null)
@@ -1044,13 +1132,55 @@ namespace BatchRename
             Properties.Settings.Default.Save();
         }
 
-        private void SaveCurrentConditions()
+        private void SaveWorkingCondition()
         {
-            Properties.Settings.Default.Preset = CreateWriterFromRunRules();
-            Properties.Settings.Default.ActiveFiles = CreateWriterFromTargets((int)FileType.File);
-            Properties.Settings.Default.ActiveFolders = CreateWriterFromTargets((int)FileType.Folder);
+            //Properties.Settings.Default.Preset = CreateWriterFromRunRules();
+            //Properties.Settings.Default.ActiveFiles = CreateWriterFromTargets((int)FileType.File);
+            //Properties.Settings.Default.ActiveFolders = CreateWriterFromTargets((int)FileType.Folder);
 
-            Properties.Settings.Default.Save();
+            //Properties.Settings.Default.Save();
+
+
+            _workingCondition.Reset();
+
+            if (WindowState == WindowState.Maximized)
+            {
+                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
+                _workingCondition.Top = RestoreBounds.Top;
+                _workingCondition.Left = RestoreBounds.Left;
+                _workingCondition.Height = RestoreBounds.Height;
+                _workingCondition.Width = RestoreBounds.Width;
+                _workingCondition.Maximized = true;
+            }
+            else
+            {
+                _workingCondition.Top = this.Top;
+                _workingCondition.Left = this.Left;
+                _workingCondition.Height = this.Height;
+                _workingCondition.Width = this.Width;
+                _workingCondition.Maximized = false;
+            }
+
+            foreach (var runRule in _runRules)
+            {
+                if (!string.IsNullOrEmpty(runRule.Command))
+                {
+                    _workingCondition.Preset.Add(runRule.Command);
+                }
+            }
+
+            foreach (var file in _files)
+            {
+                _workingCondition.ActiveFiles.Add(file.Path);
+            }
+
+            foreach (var folder in _folders)
+            {
+                _workingCondition.ActiveFolders.Add(folder.Path);
+            }
+
+            string jsonString = JsonConvert.SerializeObject(_workingCondition, Formatting.Indented);
+            System.IO.File.WriteAllText(@"D:\Download\[1000Study]\[Term7]\1. Windows Programming\[project01_BatchRename]\test.json", jsonString);
         }
     }
 }
