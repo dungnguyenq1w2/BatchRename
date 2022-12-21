@@ -43,9 +43,9 @@ namespace BatchRename
             Folder
         }
 
-        private DispatcherTimer? _dispatcherTimer;
+        //private DispatcherTimer? _dispatcherTimer;
 
-        private const int AUTOSAVE_INTERVAL_SECONDS = 100;
+        //private const int AUTOSAVE_INTERVAL_SECONDS = 10;
 
         public MainWindow()
         {
@@ -99,10 +99,10 @@ namespace BatchRename
             lvFolders.ItemsSource = _folders;
 
             // Start auto-save after each interval
-            _dispatcherTimer = new DispatcherTimer();
-            _dispatcherTimer.Interval = TimeSpan.FromMilliseconds(AUTOSAVE_INTERVAL_SECONDS * 1000);
-            _dispatcherTimer.Tick += PeriodicAutoSave;
-            _dispatcherTimer.Start();
+            //_dispatcherTimer = new DispatcherTimer();
+            //_dispatcherTimer.Interval = TimeSpan.FromMilliseconds(AUTOSAVE_INTERVAL_SECONDS * 1000);
+            //_dispatcherTimer.Tick += PeriodicAutoSave;
+            //_dispatcherTimer.Start();
         }
 
         private void PeriodicAutoSave(object? o, EventArgs e)
@@ -259,6 +259,7 @@ namespace BatchRename
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
+            SaveWorkingCondition();
             Close();
         }
         #endregion
@@ -357,6 +358,8 @@ namespace BatchRename
                     }
                 }
             }
+
+            SaveWorkingCondition();
         }
 
         private void MoveAllFilesToCopyFolder(string srcPath, string desPath)
@@ -540,6 +543,8 @@ namespace BatchRename
                     }
                 }
             }
+
+            SaveWorkingCondition();
         }
         #endregion
 
@@ -707,6 +712,7 @@ namespace BatchRename
             });
 
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
 
         private void btnRemoveRunRule_Click(object sender, RoutedEventArgs e)
@@ -719,6 +725,8 @@ namespace BatchRename
 
                 EvokeToUpdateNewName();
             }
+
+            SaveWorkingCondition();
         }
 
         private void btnClearRunRule_Click(object sender, RoutedEventArgs e)
@@ -726,6 +734,7 @@ namespace BatchRename
             _runRules.Clear();
 
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
 
         private void btnEditRunRule_Click(object sender, RoutedEventArgs e)
@@ -744,6 +753,8 @@ namespace BatchRename
                     EvokeToUpdateNewName();
                 }
             }
+
+            SaveWorkingCondition();
         }
 
         private void btnRemoveRunRuleItself_Click(object sender, RoutedEventArgs e)
@@ -757,6 +768,7 @@ namespace BatchRename
             UpdateOrder();
 
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
 
         void LoadLastWorkingCondition()
@@ -850,39 +862,6 @@ namespace BatchRename
             }
         }
 
-        void loadLastActiveFiles(string activeFiles)
-        {
-            string[]? tokens = activeFiles.Split("\n", StringSplitOptions.None);
-            for (int i = 1; i < tokens.Length - 1; i++)
-            {
-                string filePath = tokens[i];
-                string fileName = Path.GetFileName(filePath);
-
-                _files.Add(new File()
-                {
-                    Name = fileName,
-                    //NewName = "",
-                    Path = filePath
-                });
-            }
-        }
-
-        void loadLastActiveFolders(string activeFolders)
-        {
-            string[]? tokens = activeFolders.Split("\n", StringSplitOptions.None);
-            for (int i = 1; i < tokens.Length - 1; i++)
-            {
-                string folderPath = tokens[i];
-                string folderName = Path.GetFileName(folderPath);
-
-                _folders.Add(new File()
-                {
-                    Name = folderName,
-                    //NewName = "",
-                    Path = folderPath
-                });
-            }
-        }
         #endregion
 
         #region file handler
@@ -966,6 +945,7 @@ namespace BatchRename
 
             //
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
 
         private void btnAddFilesInDirectory_Click(object sender, RoutedEventArgs e)
@@ -994,18 +974,22 @@ namespace BatchRename
 
             //
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
         private void btnRemoveFile_Click(object sender, RoutedEventArgs e)
         {
             if (lvFiles.SelectedIndex != -1)
             {
                 _files.RemoveAt(lvFiles.SelectedIndex);
+                //EvokeToUpdateNewName();
+                SaveWorkingCondition();
             }
         }
 
         private void btnClearFiles_Click(object sender, RoutedEventArgs e)
         {
             _files.Clear();
+            SaveWorkingCondition();
         }
 
         private void lvFiles_Drop(object sender, System.Windows.DragEventArgs e)
@@ -1030,6 +1014,7 @@ namespace BatchRename
 
             //
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
         #endregion
 
@@ -1058,6 +1043,7 @@ namespace BatchRename
 
             //
             EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
 
         private void btnRemoveFolder_Click(object sender, RoutedEventArgs e)
@@ -1087,11 +1073,11 @@ namespace BatchRename
             SaveWorkingCondition();
 
             // 
-            if (_dispatcherTimer != null)
-            {
-                _dispatcherTimer.Stop();
-                _dispatcherTimer = null;
-            }
+            //if (_dispatcherTimer != null)
+            //{
+            //    _dispatcherTimer.Stop();
+            //    _dispatcherTimer = null;
+            //}
         }
 
         //private void SaveWindowState()
