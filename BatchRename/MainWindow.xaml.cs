@@ -637,6 +637,12 @@ namespace BatchRename
                         file.NewName = rule.Rename(file.NewName);
                     }
 
+                    // AddEndCounterRule: Counter of folders start from "Start value input" too instead of continue increase Counter
+                    if (runRule.Command.Contains("AddEndCounter"))
+                    {
+                        rule = parser.Parse(runRule.Command);
+                    }
+
                     foreach (var folder in _folders)
                     {
                         folder.NewName = rule.Rename(folder.NewName);
@@ -981,7 +987,7 @@ namespace BatchRename
             if (lvFiles.SelectedIndex != -1)
             {
                 _files.RemoveAt(lvFiles.SelectedIndex);
-                //EvokeToUpdateNewName();
+                EvokeToUpdateNewName();
                 SaveWorkingCondition();
             }
         }
@@ -989,6 +995,7 @@ namespace BatchRename
         private void btnClearFiles_Click(object sender, RoutedEventArgs e)
         {
             _files.Clear();
+            //EvokeToUpdateNewName();
             SaveWorkingCondition();
         }
 
@@ -1048,17 +1055,47 @@ namespace BatchRename
 
         private void btnRemoveFolder_Click(object sender, RoutedEventArgs e)
         {
-
+            if (lvFolders.SelectedIndex != -1)
+            {
+                _folders.RemoveAt(lvFolders.SelectedIndex);
+                EvokeToUpdateNewName();
+                SaveWorkingCondition();
+            }
         }
 
         private void btnClearFolders_Click(object sender, RoutedEventArgs e)
         {
-
+            _folders.Clear();
+            //EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
 
         private void lvFolders_Drop(object sender, System.Windows.DragEventArgs e)
         {
+            if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
 
+                foreach (var file in files)
+                {
+                    if (Directory.Exists(file))
+                    {
+                        if (!IsAdded(file, (int)FileType.Folder))
+                        {
+                            _folders.Add(new File()
+                            {
+                                Name = Path.GetFileName(file),
+                                //NewName = ImposeRule(Path.GetFileName(file)),
+                                Path = file
+                            });
+                        }
+                    }
+                }
+            }
+
+            //
+            EvokeToUpdateNewName();
+            SaveWorkingCondition();
         }
         #endregion
 
