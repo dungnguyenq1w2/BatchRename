@@ -1100,11 +1100,6 @@ namespace BatchRename
         #endregion
 
 
-        private void lvRunRules_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
         private void Window_Closing(object sender, CancelEventArgs e)
         {
             SaveWorkingCondition();
@@ -1200,5 +1195,6 @@ namespace BatchRename
                 return;
             }
         }
+
     }
 }

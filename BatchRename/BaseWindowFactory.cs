@@ -25,7 +25,7 @@ namespace BatchRename
         {
             if (_instance == null)
             {
-                _instance = new BaseWindowFactory(); ;
+                _instance = new BaseWindowFactory();
             }
 
             return _instance;

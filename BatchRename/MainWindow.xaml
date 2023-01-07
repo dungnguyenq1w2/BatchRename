@@ -92,19 +92,26 @@
                             <TextBlock Padding="2" VerticalAlignment="Center">Preset:</TextBlock>
                             <Button
                                 Click="btnOpenPreset_Click"
-                                Padding="3,0,3,0">
-                                <Image
+                                Padding="3,0,3,0"
+                               >
+                                <StackPanel>
+                                    <Image
                                     Source="Images/open.png"
                                     RenderOptions.BitmapScalingMode="HighQuality"
                                     Width="13" />
+                                    <TextBlock FontSize="8px">Open</TextBlock>
+                                </StackPanel>
                             </Button>
                             <Button
                                 Click="btnSavePreset_Click"
                                 Padding="5,0,5,0">
-                                <Image
+                                <StackPanel>
+                                    <Image
                                     Source="Images/save.png"
                                     RenderOptions.BitmapScalingMode="HighQuality"
                                     Width="13" />
+                                    <TextBlock FontSize="8px">Save</TextBlock>
+                                </StackPanel>
                             </Button>
                             <Border
                                 Margin="5,0,0,0"
@@ -120,24 +127,32 @@
                             <Button
                                 Click="btnRemoveRunRule_Click"
                                 Padding="3,0,3,0">
-                                <Image
+                                <StackPanel>
+                                    <Image
                                     Source="Images/minus.png"
                                     RenderOptions.BitmapScalingMode="HighQuality"
                                     Width="13" />
+                                    <TextBlock FontSize="8px">Remove</TextBlock>
+                                </StackPanel>
+                                
                             </Button>
                             <Button
                                 Click="btnClearRunRule_Click"
                                 Padding="5,0,5,0">
-                                <Image
+                                <StackPanel>
+                                    <Image
                                     Source="Images/delete.png"
                                     RenderOptions.BitmapScalingMode="HighQuality"
                                     Width="13" />
+                                    <TextBlock FontSize="8px">Clear</TextBlock>
+                                </StackPanel>
+                               
                             </Button>
                         </ToolBar>
                     </ToolBarTray>
                     <WrapPanel x:Name="wpRuleChooser" />
                 </StackPanel>
-                <ListView x:Name="lvRunRules" SelectionChanged="lvRunRules_SelectionChanged">
+                <ListView x:Name="lvRunRules">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -171,21 +186,24 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
-                                        <Button.Content>
-                                            <Underline>Edit</Underline>
-                                        </Button.Content>
+                                        <Image
+                                                Source="Images/edit.ico"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
                                     </Button>
                                     <Button
                                         Margin="5"
                                         Background="Transparent"
                                         Foreground="Red"
                                         BorderBrush="Transparent"
+                                        
                                         Tag="{Binding Index}"
                                         Click="btnRemoveRunRuleItself_Click"
                                         Grid.Column="2">
-                                        <Button.Content>
-                                            <Underline>Remove</Underline>
-                                        </Button.Content>
+                                        <Image
+                                                Source="Images/delete.png"
+                                                RenderOptions.BitmapScalingMode="HighQuality"
+                                                Width="15"/>
                                     </Button>
                                 </Grid>
                             </Border>
